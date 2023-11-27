@@ -4,10 +4,10 @@ An implementation of C++ STL
 `<algorithm>` [cppreference](https://en.cppreference.com/w/cpp/header/algorithm)
 
 - **Non-modifying sequence operations**
-  - [ ] `all_of` `any_of` `none_of`
-  - [ ] `for_each`
+  - [x] `all_of` `any_of` `none_of`
+  - [x] `for_each`
   - [ ] `for_each_n`
-  - [ ] `count` `count_if`
+  - [x] `count` `count_if`
   - [ ] `mismatch`
   - [ ] `find` `find_if` `find_if_not`
   - [ ] `find_end`
