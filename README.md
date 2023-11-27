@@ -76,13 +76,9 @@ An implementation of C++ STL
   - [ ] `pop_heap`
   - [ ] `sort_heap`
 - **Minimum/maximum operations**
-  - [ ] `max`
-  - [ ] `max_element`
-  - [ ] `min`
-  - [ ] `min_element`
-  - [ ] `minmax`
-  - [ ] `minmax_element`
-  - [ ] `clamp`
+  - [x] `max_element`
+  - [x] `min_element`
+  - [x] `minmax_element`
 - **Comparison operations**
   - [ ] `equal`
   - [ ] `lexicographical_compare`

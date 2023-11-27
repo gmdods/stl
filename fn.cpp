@@ -1,7 +1,21 @@
+#ifndef LOOP_STL_HPP
+#define LOOP_STL_HPP
+
 #include <functional>
 
 namespace loop {
 namespace fn {
+
+template <typename Fn>
+struct deref {
+	Fn f;
+	deref(Fn & f) : f(f) {}
+
+	template <typename It>
+	constexpr auto operator()(It it) const {
+		return std::invoke(f, *it);
+	}
+};
 
 template <typename Fn>
 struct ifnot {
@@ -24,3 +38,5 @@ struct eq {
 
 } // namespace fn
 } // namespace loop
+
+#endif // !LOOP_STL_HPP

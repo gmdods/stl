@@ -1,20 +1,21 @@
 #include <stdlib.h>
 
-#include "loop.cpp"
 #include "fn.cpp"
+#include "loop.cpp"
 
 namespace loop {
 
 template <typename It, typename Fn>
 constexpr void for_each(It f, It l, Fn fn) {
-	do_(f, l, fn);
+	elt_do(f, l, fn);
 }
 
 template <typename It, typename Fn>
 constexpr size_t count_if(It f, It l, Fn fn) {
 	size_t count = 0;
-	do_(f, l,
-	    [&count, &fn](auto elt) { count += static_cast<bool>(fn(elt)); });
+	elt_do(f, l, [&count, &fn](auto elt) {
+		count += static_cast<bool>(fn(elt));
+	});
 	return count;
 }
 
@@ -26,7 +27,7 @@ constexpr size_t count(It f, It l, T val) {
 template <typename It, typename Fn>
 constexpr bool all_of(It f, It l, Fn fn) {
 	bool all = true;
-	while_(f, l, [&all, &fn](auto elt) {
+	elt_while(f, l, [&all, &fn](auto elt) {
 		return all = static_cast<bool>(fn(elt));
 	});
 	return all;
@@ -44,7 +45,7 @@ constexpr bool any_of(It f, It l, Fn fn) {
 
 template <typename It, typename Fn>
 constexpr It find_if_not(It f, It l, Fn fn) {
-	return while_(f, l, fn);
+	return elt_while(f, l, fn);
 }
 
 template <typename It, typename Fn>
@@ -55,6 +56,32 @@ constexpr It find_if(It f, It l, Fn fn) {
 template <typename It, typename T>
 constexpr It find(It f, It l, T val) {
 	return find_if(f, l, fn::eq(val));
+}
+
+template <typename It>
+struct minmax {
+	It min, max;
+};
+
+template <typename It>
+constexpr minmax<It> minmax_element(It f, It l) {
+	It max = f;
+	It min = f;
+	iter_do(f, l, [&max, &min](auto it) {
+		if (*it > *max) max = it;
+		if (*it < *min) min = it;
+	});
+	return {min, max};
+}
+
+template <typename It>
+constexpr It max_element(It f, It l) {
+	return minmax_element(f, l).max;
+}
+
+template <typename It>
+constexpr It min_element(It f, It l) {
+	return minmax_element(f, l).min;
 }
 
 } // namespace loop

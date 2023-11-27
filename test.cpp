@@ -24,5 +24,8 @@ int main() {
 	assert(a.begin() == find_if(a.cbegin(), a.cend(), odd));
 	assert(3 == *find(a.cbegin(), a.cend(), 3));
 
+	assert(a.begin() == min_element(a.cbegin(), a.cend()));
+	assert(6 == *max_element(a.cbegin(), a.cend()));
+
 	return 0;
 }
