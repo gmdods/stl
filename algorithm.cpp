@@ -1,15 +1,16 @@
 #include <stdlib.h>
 
 template <typename It, typename Fn>
-constexpr void loop_while(It f, It l, Fn fn) {
+constexpr It loop_while(It f, It l, Fn fn) {
 	for (; f != l; ++f) {
-		if (!fn(*f)) break;
+		if (!static_cast<bool>(fn(*f))) break;
 	}
+	return f;
 }
 
 template <typename It, typename Fn>
-constexpr void loop_do(It f, It l, Fn fn) {
-	loop_while(f, l, [&fn](auto elt) {
+constexpr It loop_do(It f, It l, Fn fn) {
+	return loop_while(f, l, [&fn](auto elt) {
 		fn(elt);
 		return true;
 	});
@@ -51,4 +52,19 @@ constexpr bool none_of(It f, It l, Fn fn) {
 template <typename It, typename Fn>
 constexpr bool any_of(It f, It l, Fn fn) {
 	return !none_of(f, l, fn);
+}
+
+template <typename It, typename Fn>
+constexpr It find_if_not(It f, It l, Fn fn) {
+	return loop_while(f, l, fn);
+}
+
+template <typename It, typename Fn>
+constexpr It find_if(It f, It l, Fn fn) {
+	return find_if_not(f, l, [&fn](auto elt) { return !fn(elt); });
+}
+
+template <typename It, typename T>
+constexpr It find(It f, It l, T val) {
+	return find_if(f, l, [val](auto elt) { return elt == val; });
 }

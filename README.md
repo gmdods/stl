@@ -9,7 +9,7 @@ An implementation of C++ STL
   - [ ] `for_each_n`
   - [x] `count` `count_if`
   - [ ] `mismatch`
-  - [ ] `find` `find_if` `find_if_not`
+  - [x] `find` `find_if` `find_if_not`
   - [ ] `find_end`
   - [ ] `find_first_of`
   - [ ] `adjacent_find`
