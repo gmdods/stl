@@ -4,6 +4,8 @@
 #include "algorithm.cpp"
 
 int main() {
+	using namespace loop;
+
 	auto odd = [](auto i) { return static_cast<bool>(i % 2); };
 
 	std::array a{1, 2, 3, 4, 5, 6};
