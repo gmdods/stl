@@ -1,7 +1,10 @@
+#ifndef LOOP_STL_ALGORITHM_HPP
+#define LOOP_STL_ALGORITHM_HPP
+
 #include <stdlib.h>
 
-#include "fn.cpp"
-#include "loop.cpp"
+#include "fn.hpp"
+#include "loop.hpp"
 
 namespace loop {
 
@@ -85,3 +88,5 @@ constexpr It min_element(It f, It l) {
 }
 
 } // namespace loop
+
+#endif // !LOOP_STL_ALGORITHM_HPP

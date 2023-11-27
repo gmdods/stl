@@ -1,7 +1,7 @@
 #include <array>
 #include <cassert>
 
-#include "algorithm.cpp"
+#include "algorithm.hpp"
 
 int main() {
 	using namespace loop;

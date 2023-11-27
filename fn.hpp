@@ -1,5 +1,5 @@
-#ifndef LOOP_STL_HPP
-#define LOOP_STL_HPP
+#ifndef LOOP_STL_FN_HPP
+#define LOOP_STL_FN_HPP
 
 #include <functional>
 
@@ -39,4 +39,4 @@ struct eq {
 } // namespace fn
 } // namespace loop
 
-#endif // !LOOP_STL_HPP
+#endif // !LOOP_STL_FN_HPP

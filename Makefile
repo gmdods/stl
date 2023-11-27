@@ -1,8 +1,8 @@
 CXX = g++
 CXXFLAGS = -Wall -Wpedantic -Wextra -Wno-unused-variable \
 	-Wno-unused-function -march=native -O3 -std=c++2a
-DEPS = loop.cpp fn.cpp
-FILES = algorithm.cpp
+DEPS = loop.hpp fn.hpp
+FILES = algorithm.hpp
 
 test: test.out
 .PHONY: test

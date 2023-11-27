@@ -1,4 +1,7 @@
-#include "fn.cpp"
+#ifndef LOOP_STL_LOOP_HPP
+#define LOOP_STL_LOOP_HPP
+
+#include "fn.hpp"
 
 namespace loop {
 
@@ -29,3 +32,5 @@ constexpr It elt_do(It f, It l, Fn fn) {
 }
 
 } // namespace loop
+
+#endif // !LOOP_STL_LOOP_HPP
