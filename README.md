@@ -71,10 +71,10 @@ An implementation of C++ STL
 	- [ ] `stable_sort`
 	- [ ] `nth_element`
 - **Binary search operations (on sorted ranges)**
-	- [ ] `lower_bound`
-	- [ ] `upper_bound`
-	- [ ] `binary_search`
-	- [ ] `equal_range`
+	- [x] `lower_bound`
+	- [x] `upper_bound`
+	- [x] `binary_search`
+	- [x] `equal_range`
 	- [ ] `merge`
 	- [ ] `inplace_merge`
 - **Set operations (on sorted ranges)**

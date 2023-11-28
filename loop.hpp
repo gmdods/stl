@@ -5,12 +5,26 @@
 
 namespace loop {
 
+template <typename T>
+constexpr T midpoint(T a, T b) {
+	return a + (b - a) / 2;
+}
+
 template <typename It>
 struct exited {
 	It it;
 	bool ended_;
+
 	constexpr bool ended() const { return ended_; }
 	constexpr bool found() const { return !ended_; }
+};
+
+template <typename It>
+struct range {
+	It f, l;
+	constexpr operator bool() { return f != l; }
+	constexpr auto operator*() { return *f; }
+	constexpr void operator++() { ++f; }
 };
 
 template <typename It, typename Fn>
@@ -36,27 +50,23 @@ constexpr It element_each(It f, It l, Fn fn) {
 	return iterator_each(f, l, fn::deref(fn));
 }
 
-template <typename T>
-constexpr T midpoint(T a, T b) {
-	return a + (b - a) / 2;
-}
-
 template <typename It, typename Br, typename Fn>
-constexpr exited<It> binary(It f, It l, Br br, Fn fn) {
+constexpr exited<range<It>> binary(It f, It l, Br br, Fn fn) {
 	while (f != l) {
 		const auto mid = loop::midpoint(f, l);
-		if (!bit(fn, *mid)) return {mid, false};
-		if (bit(br, *mid))
+		if (!fn::bit(fn, *mid)) return {{f, l}, false};
+		if (fn::bit(br, *mid))
 			f = mid + 1;
 		else
 			l = mid;
 	}
-	return {f, true};
+	return {{f, l}, true};
 }
 
 template <typename It, typename Br>
-constexpr It binary_bound(It f, It l,Br br) {
-	return loop::binary(f, l, br, fn::constant(true)).it;
+constexpr It binary_bound(It f, It l, Br br) {
+	auto [lb, ub] = loop::binary(f, l, br, fn::constant(true)).it;
+	return loop::midpoint(lb, ub);
 }
 
 } // namespace loop

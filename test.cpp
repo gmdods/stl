@@ -37,11 +37,13 @@ int main() {
 	       loop::partition_point(a.cbegin(), a.cend(), lt_3));
 
 	auto three = loop::find(b.cbegin(), b.cend(), 3);
+	auto rng = loop::range{loop::lower_bound(b.cbegin(), b.cend(), 3),
+			       loop::upper_bound(b.cbegin(), b.cend(), 3)};
 	assert(loop::binary_search(b.cbegin(), b.cend(), 3));
 	assert(three == std::next(b.cbegin(), 4));
-	assert(three == loop::lower_bound(b.cbegin(), b.cend(), 3));
-	assert(std::next(three, 3) ==
-	       loop::upper_bound(b.cbegin(), b.cend(), 3));
+	assert(three == rng.f);
+	assert(std::next(three, 3) == rng.l);
+	assert(rng == loop::equal_range(b.cbegin(), b.cend(), 3));
 
 	assert(21 == loop::reduce(a.cbegin(), a.cend(), 0, std::plus{}));
 	assert(0 == loop::transform_reduce(a.cbegin(), a.cend(), 21,
