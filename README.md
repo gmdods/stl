@@ -57,11 +57,11 @@ An implementation of C++ STL
 	- [ ] `unique`
 	- [ ] `unique_copy`
 - **Partitioning operations**
-	- [ ] `is_partitioned`
+	- [x] `is_partitioned`
 	- [ ] `partition`
 	- [ ] `partition_copy`
 	- [ ] `stable_partition`
-	- [ ] `partition_point`
+	- [x] `partition_point`
 - **Sorting operations**
 	- [ ] `is_sorted`
 	- [ ] `is_sorted_until`
@@ -75,6 +75,7 @@ An implementation of C++ STL
 	- [x] `upper_bound`
 	- [x] `binary_search`
 	- [x] `equal_range`
+- **Modifying operations (on sorted ranges)**
 	- [ ] `merge`
 	- [ ] `inplace_merge`
 - **Set operations (on sorted ranges)**
