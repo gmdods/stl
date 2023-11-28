@@ -33,6 +33,18 @@ struct ifnot {
 	}
 };
 
+template <typename Bin, typename Fn>
+struct rhs {
+	Bin bin;
+	Fn fn;
+	rhs(Bin bin, Fn fn) : bin(bin), fn(fn) {}
+
+	template <typename T>
+	constexpr T operator()(T lhs_, T rhs_) const {
+		return std::invoke(bin, lhs_, std::invoke(fn, rhs_));
+	}
+};
+
 template <typename T>
 struct eq {
 	T val;

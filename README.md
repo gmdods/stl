@@ -5,9 +5,9 @@ An implementation of C++ STL
 
 - **Functions**
 	- [ ] iota
-	- [ ] accumulate
-	- [ ] reduce
-	- [ ] transform_reduce
+	- [x] accumulate
+	- [x] reduce
+	- [x] transform_reduce
 	- [ ] inner_product
 	- [ ] adjacent_difference
 	- [ ] partial_sum

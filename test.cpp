@@ -1,7 +1,10 @@
 #include <array>
 #include <cassert>
+#include <functional>
+#include <iostream>
 
 #include "algorithm.hpp"
+#include "numeric.hpp"
 
 int main() {
 	using namespace loop;
@@ -27,5 +30,10 @@ int main() {
 	assert(a.begin() == min_element(a.cbegin(), a.cend()));
 	assert(6 == *max_element(a.cbegin(), a.cend()));
 
+	assert(21 == reduce(a.cbegin(), a.cend(), 0, std::plus{}));
+	assert(0 == transform_reduce(a.cbegin(), a.cend(), 21, std::plus{},
+				     std::negate{}));
+
+	std::cout << "OK!" << '\n';
 	return 0;
 }

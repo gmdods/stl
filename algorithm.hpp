@@ -18,7 +18,7 @@ constexpr void for_each(It f, It l, Fn fn) {
 template <typename It, typename Fn>
 constexpr size_t count_if(It f, It l, Fn fn) {
 	size_t count = 0;
-	elt_do(f, l, [&count, &fn](auto elt) { count += fn::bit(fn, elt); });
+	elt_do(f, l, [&count, fn](auto elt) { count += fn::bit(fn, elt); });
 	return count;
 }
 

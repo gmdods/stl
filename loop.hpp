@@ -22,7 +22,7 @@ constexpr exited<It> iter_while(It f, It l, Fn fn) {
 
 template <typename It, typename Fn>
 constexpr exited<It> iter_do(It f, It l, Fn fn) {
-	return iter_while(f, l, [&fn](auto elt) {
+	return iter_while(f, l, [fn](auto elt) {
 		fn(elt);
 		return true;
 	});
