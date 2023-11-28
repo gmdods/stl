@@ -8,6 +8,8 @@
 
 namespace loop {
 
+// Non-modifying
+
 template <typename It, typename Fn>
 constexpr void for_each(It f, It l, Fn fn) {
 	elt_do(f, l, fn);
@@ -16,9 +18,7 @@ constexpr void for_each(It f, It l, Fn fn) {
 template <typename It, typename Fn>
 constexpr size_t count_if(It f, It l, Fn fn) {
 	size_t count = 0;
-	elt_do(f, l, [&count, &fn](auto elt) {
-		count += static_cast<bool>(fn(elt));
-	});
+	elt_do(f, l, [&count, &fn](auto elt) { count += fn::bit(fn, elt); });
 	return count;
 }
 
@@ -29,11 +29,7 @@ constexpr size_t count(It f, It l, T val) {
 
 template <typename It, typename Fn>
 constexpr bool all_of(It f, It l, Fn fn) {
-	bool all = true;
-	elt_while(f, l, [&all, &fn](auto elt) {
-		return all = static_cast<bool>(fn(elt));
-	});
-	return all;
+	return elt_while(f, l, fn).ended;
 }
 
 template <typename It, typename Fn>
@@ -48,7 +44,7 @@ constexpr bool any_of(It f, It l, Fn fn) {
 
 template <typename It, typename Fn>
 constexpr It find_if_not(It f, It l, Fn fn) {
-	return elt_while(f, l, fn);
+	return elt_while(f, l, fn).it;
 }
 
 template <typename It, typename Fn>
@@ -60,6 +56,8 @@ template <typename It, typename T>
 constexpr It find(It f, It l, T val) {
 	return find_if(f, l, fn::eq(val));
 }
+
+// Min/Max
 
 template <typename It>
 struct minmax {

@@ -17,6 +17,11 @@ struct deref {
 	}
 };
 
+template <typename Fn, typename T>
+constexpr bool bit(Fn f, T elt) {
+	return static_cast<bool>(std::invoke(f, elt));
+}
+
 template <typename Fn>
 struct ifnot {
 	Fn f;
@@ -24,7 +29,7 @@ struct ifnot {
 
 	template <typename T>
 	constexpr bool operator()(T elt) const {
-		return !std::invoke(f, elt);
+		return !bit(f, elt);
 	}
 };
 
