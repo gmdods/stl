@@ -33,6 +33,9 @@ int main() {
 	assert(a.begin() == loop::min_element(a.cbegin(), a.cend()));
 	assert(6 == *loop::max_element(a.cbegin(), a.cend()));
 
+	assert(loop::is_partitioned(a.cbegin(), a.cend(),
+				    [](auto i) { return i > 2; }));
+
 	assert(21 == loop::reduce(a.cbegin(), a.cend(), 0, std::plus{}));
 	assert(0 == loop::transform_reduce(a.cbegin(), a.cend(), 21,
 					   std::plus{}, std::negate{}));

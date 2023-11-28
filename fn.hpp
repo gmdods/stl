@@ -9,27 +9,11 @@ namespace fn {
 template <typename Fn>
 struct deref {
 	Fn f;
-	deref(Fn & f) : f(f) {}
+	deref(Fn f) : f(f) {}
 
 	template <typename It>
 	constexpr auto operator()(It it) const {
 		return std::invoke(f, *it);
-	}
-};
-
-template <typename Fn, typename T>
-constexpr bool bit(Fn f, T elt) {
-	return static_cast<bool>(std::invoke(f, elt));
-}
-
-template <typename Fn>
-struct ifnot {
-	Fn f;
-	ifnot(Fn & f) : f(f) {}
-
-	template <typename T>
-	constexpr bool operator()(T elt) const {
-		return !bit(f, elt);
 	}
 };
 
@@ -42,6 +26,22 @@ struct side_effect {
 	constexpr bool operator()(T elt) const {
 		std::invoke(fn, elt);
 		return true;
+	}
+};
+
+template <typename Fn, typename T>
+constexpr bool bit(Fn f, T elt) {
+	return static_cast<bool>(std::invoke(f, elt));
+}
+
+template <typename Fn>
+struct ifnot {
+	Fn f;
+	ifnot(Fn f) : f(f) {}
+
+	template <typename T>
+	constexpr bool operator()(T elt) const {
+		return !bit(f, elt);
 	}
 };
 

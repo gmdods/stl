@@ -18,7 +18,8 @@ constexpr void for_each(It f, It l, Fn fn) {
 template <typename It, typename Fn>
 constexpr size_t count_if(It f, It l, Fn fn) {
 	size_t count = 0;
-	loop::elt_do(f, l, [&count, fn](auto elt) { count += fn::bit(fn, elt); });
+	loop::elt_do(f, l,
+		     [&count, fn](auto elt) { count += fn::bit(fn, elt); });
 	return count;
 }
 
@@ -57,8 +58,6 @@ constexpr It find(It f, It l, T val) {
 	return loop::find_if(f, l, fn::eq(val));
 }
 
-
-
 // Min/Max
 
 template <typename It>
@@ -85,6 +84,14 @@ constexpr It max_element(It f, It l) {
 template <typename It>
 constexpr It min_element(It f, It l) {
 	return loop::minmax_element(f, l).min;
+}
+
+// Partition
+
+template <typename It, typename Fn>
+constexpr bool is_partitioned(It f, It l, Fn fn) {
+	f = loop::find_if(f, l, fn);
+	return loop::all_of(f, l, fn);
 }
 
 } // namespace loop
