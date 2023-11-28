@@ -30,7 +30,7 @@ constexpr size_t count(It f, It l, T val) {
 
 template <typename It, typename Fn>
 constexpr bool all_of(It f, It l, Fn fn) {
-	return loop::elt_while(f, l, fn).ended;
+	return loop::elt_while(f, l, fn).ended();
 }
 
 template <typename It, typename Fn>
@@ -90,8 +90,30 @@ constexpr It min_element(It f, It l) {
 
 template <typename It, typename Fn>
 constexpr bool is_partitioned(It f, It l, Fn fn) {
-	f = loop::find_if(f, l, fn);
-	return loop::all_of(f, l, fn);
+	f = loop::find_if_not(f, l, fn);
+	return loop::none_of(f, l, fn);
+}
+
+template <typename It, typename Fn>
+constexpr It partition_point(It f, It l, Fn fn) {
+	return loop::binary_bound(f, l, fn);
+}
+
+// Binary Search
+
+template <typename It, typename T>
+constexpr bool binary_search(It f, It l, T val) {
+	return loop::binary(f, l, fn::lt(val), fn::ifnot(fn::eq(val))).found();
+}
+
+template <typename It, typename T>
+constexpr It lower_bound(It f, It l, T val) {
+	return loop::partition_point(f, l, fn::lt(val));
+}
+
+template <typename It, typename T>
+constexpr It upper_bound(It f, It l, T val) {
+	return loop::partition_point(f, l, fn::ifnot(fn::gt(val)));
 }
 
 } // namespace loop

@@ -4,6 +4,7 @@
 #include <functional>
 
 namespace loop {
+
 namespace fn {
 
 template <typename Fn>
@@ -26,6 +27,17 @@ struct side_effect {
 	constexpr bool operator()(T elt) const {
 		std::invoke(fn, elt);
 		return true;
+	}
+};
+
+template <typename T>
+struct constant {
+	T val;
+	constant(T val) : val(val) {}
+
+	template <typename U>
+	constexpr bool operator()(U) const {
+		return val;
 	}
 };
 
@@ -63,6 +75,22 @@ struct eq {
 	eq(T val) : val(val) {}
 
 	constexpr bool operator()(T elt) const { return elt == val; }
+};
+
+template <typename T>
+struct lt {
+	T val;
+	lt(T val) : val(val) {}
+
+	constexpr bool operator()(T elt) const { return elt < val; }
+};
+
+template <typename T>
+struct gt {
+	T val;
+	gt(T val) : val(val) {}
+
+	constexpr bool operator()(T elt) const { return val < elt; }
 };
 
 } // namespace fn

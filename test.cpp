@@ -10,15 +10,14 @@
 int main() {
 
 	auto odd = [](auto i) { return static_cast<bool>(i % 2); };
+	auto lt_3 = loop::fn::lt(3);
 
 	std::array a{1, 2, 3, 4, 5, 6};
+	std::array b{0, 0, 1, 2, 3, 3, 3, 4};
 
-	assert(
-	    loop::all_of(a.cbegin(), a.cend(), [](auto i) { return i <= 6; }));
-	assert(
-	    loop::any_of(a.cbegin(), a.cend(), [](auto i) { return i == 3; }));
-	assert(
-	    loop::none_of(a.cbegin(), a.cend(), [](auto i) { return i > 6; }));
+	assert(loop::all_of(a.cbegin(), a.cend(), loop::fn::lt(7)));
+	assert(loop::any_of(a.cbegin(), a.cend(), loop::fn::eq(3)));
+	assert(loop::none_of(a.cbegin(), a.cend(), loop::fn::gt(6)));
 
 	size_t sum = 0;
 	loop::for_each(a.cbegin(), a.cend(), [&sum](auto i) { sum += i; });
@@ -33,8 +32,16 @@ int main() {
 	assert(a.begin() == loop::min_element(a.cbegin(), a.cend()));
 	assert(6 == *loop::max_element(a.cbegin(), a.cend()));
 
-	assert(loop::is_partitioned(a.cbegin(), a.cend(),
-				    [](auto i) { return i > 2; }));
+	assert(loop::is_partitioned(a.cbegin(), a.cend(), lt_3));
+	assert(loop::find_if_not(a.cbegin(), a.cend(), lt_3) ==
+	       loop::partition_point(a.cbegin(), a.cend(), lt_3));
+
+	auto three = loop::find(b.cbegin(), b.cend(), 3);
+	assert(loop::binary_search(b.cbegin(), b.cend(), 3));
+	assert(three == std::next(b.cbegin(), 4));
+	assert(three == loop::lower_bound(b.cbegin(), b.cend(), 3));
+	assert(std::next(three, 3) ==
+	       loop::upper_bound(b.cbegin(), b.cend(), 3));
 
 	assert(21 == loop::reduce(a.cbegin(), a.cend(), 0, std::plus{}));
 	assert(0 == loop::transform_reduce(a.cbegin(), a.cend(), 21,
