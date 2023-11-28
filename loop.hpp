@@ -14,7 +14,7 @@ struct exited {
 };
 
 template <typename It, typename Fn>
-constexpr exited<It> iter_while(It f, It l, Fn fn) {
+constexpr exited<It> iterator_while(It f, It l, Fn fn) {
 	for (; f != l; ++f) {
 		if (!fn::bit(fn, f)) return {f, false};
 	}
@@ -22,38 +22,41 @@ constexpr exited<It> iter_while(It f, It l, Fn fn) {
 }
 
 template <typename It, typename Fn>
-constexpr It iter_do(It f, It l, Fn fn) {
-	return iter_while(f, l, fn::side_effect(fn)).it;
+constexpr It iterator_each(It f, It l, Fn fn) {
+	return iterator_while(f, l, fn::side_effect(fn)).it;
 }
 
 template <typename It, typename Fn>
-constexpr exited<It> elt_while(It f, It l, Fn fn) {
-	return iter_while(f, l, fn::deref(fn));
+constexpr exited<It> element_while(It f, It l, Fn fn) {
+	return iterator_while(f, l, fn::deref(fn));
 }
 
 template <typename It, typename Fn>
-constexpr It elt_do(It f, It l, Fn fn) {
-	return iter_do(f, l, fn::deref(fn));
+constexpr It element_each(It f, It l, Fn fn) {
+	return iterator_each(f, l, fn::deref(fn));
+}
+
+template <typename T>
+constexpr T midpoint(T a, T b) {
+	return a + (b - a) / 2;
 }
 
 template <typename It, typename Br, typename Fn>
 constexpr exited<It> binary(It f, It l, Br br, Fn fn) {
-	It lb = f;
-	It ub = l;
-	while (lb != ub) {
-		const auto mid = lb + (ub - lb) / 2;
+	while (f != l) {
+		const auto mid = loop::midpoint(f, l);
 		if (!bit(fn, *mid)) return {mid, false};
 		if (bit(br, *mid))
-			lb = mid + 1;
+			f = mid + 1;
 		else
-			ub = mid;
+			l = mid;
 	}
-	return {lb, true};
+	return {f, true};
 }
 
-template <typename It, typename Fn>
-constexpr It binary_bound(It f, It l, Fn fn) {
-	return loop::binary(f, l, fn, fn::constant(true)).it;
+template <typename It, typename Br>
+constexpr It binary_bound(It f, It l,Br br) {
+	return loop::binary(f, l, br, fn::constant(true)).it;
 }
 
 } // namespace loop

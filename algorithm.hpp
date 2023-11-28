@@ -12,14 +12,14 @@ namespace loop {
 
 template <typename It, typename Fn>
 constexpr void for_each(It f, It l, Fn fn) {
-	loop::elt_do(f, l, fn);
+	loop::element_each(f, l, fn);
 }
 
 template <typename It, typename Fn>
 constexpr size_t count_if(It f, It l, Fn fn) {
 	size_t count = 0;
-	loop::elt_do(f, l,
-		     [&count, fn](auto elt) { count += fn::bit(fn, elt); });
+	loop::for_each(f, l,
+			 [&count, fn](auto elt) { count += fn::bit(fn, elt); });
 	return count;
 }
 
@@ -30,7 +30,7 @@ constexpr size_t count(It f, It l, T val) {
 
 template <typename It, typename Fn>
 constexpr bool all_of(It f, It l, Fn fn) {
-	return loop::elt_while(f, l, fn).ended();
+	return loop::element_while(f, l, fn).ended();
 }
 
 template <typename It, typename Fn>
@@ -45,7 +45,7 @@ constexpr bool any_of(It f, It l, Fn fn) {
 
 template <typename It, typename Fn>
 constexpr It find_if_not(It f, It l, Fn fn) {
-	return loop::elt_while(f, l, fn).it;
+	return loop::element_while(f, l, fn).it;
 }
 
 template <typename It, typename Fn>
@@ -69,7 +69,7 @@ template <typename It>
 constexpr minmax<It> minmax_element(It f, It l) {
 	It max = f;
 	It min = f;
-	loop::iter_do(f, l, [&max, &min](auto it) {
+	loop::iterator_each(f, l, [&max, &min](auto it) {
 		if (*it > *max) max = it;
 		if (*it < *min) min = it;
 	});

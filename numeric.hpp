@@ -12,7 +12,7 @@ namespace loop {
 template <typename It, typename T, typename Bin>
 constexpr T accumulate(It f, It l, T init, Bin bin) {
 	T acc = init;
-	loop::elt_do(
+	loop::for_each(
 	    f, l, [&acc, bin](auto elt) { acc = std::invoke(bin, acc, elt); });
 	return acc;
 }
