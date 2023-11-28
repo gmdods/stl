@@ -33,6 +33,18 @@ struct ifnot {
 	}
 };
 
+template <typename Fn>
+struct side_effect {
+	Fn fn;
+	side_effect(Fn fn) : fn(fn) {}
+
+	template <typename T>
+	constexpr bool operator()(T elt) const {
+		std::invoke(fn, elt);
+		return true;
+	}
+};
+
 template <typename Bin, typename Fn>
 struct rhs {
 	Bin bin;

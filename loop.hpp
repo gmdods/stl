@@ -21,11 +21,8 @@ constexpr exited<It> iter_while(It f, It l, Fn fn) {
 }
 
 template <typename It, typename Fn>
-constexpr exited<It> iter_do(It f, It l, Fn fn) {
-	return iter_while(f, l, [fn](auto elt) {
-		fn(elt);
-		return true;
-	});
+constexpr It iter_do(It f, It l, Fn fn) {
+	return iter_while(f, l, fn::side_effect(fn)).it;
 }
 
 template <typename It, typename Fn>
@@ -34,7 +31,7 @@ constexpr exited<It> elt_while(It f, It l, Fn fn) {
 }
 
 template <typename It, typename Fn>
-constexpr exited<It> elt_do(It f, It l, Fn fn) {
+constexpr It elt_do(It f, It l, Fn fn) {
 	return iter_do(f, l, fn::deref(fn));
 }
 
