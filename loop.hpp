@@ -91,10 +91,10 @@ constexpr exited<It> adjacent_while(It f, It l, Fn fn) {
 }
 
 template <typename It, typename Br, typename Fn>
-constexpr exited<range<It>> binary(It f, It l, Br br, Fn fn) {
+constexpr exited<range<It>> binary_recurse(It f, It l, Br br, Fn fn) {
 	while (f != l) {
 		const auto mid = loop::midpoint(f, l);
-		if (!fn::bit(fn, *mid)) return {{f, l}, false};
+		if (fn::bit(fn, *mid)) return {{f, l}, false};
 		if (fn::bit(br, *mid))
 			f = mid + 1;
 		else
@@ -104,8 +104,8 @@ constexpr exited<range<It>> binary(It f, It l, Br br, Fn fn) {
 }
 
 template <typename It, typename Br>
-constexpr It binary_bound(It f, It l, Br br) {
-	auto [lb, ub] = loop::binary(f, l, br, fn::constant(true)).it;
+constexpr It binary_find(It f, It l, Br br) {
+	auto [lb, ub] = loop::binary_recurse(f, l, br, fn::constant(false)).it;
 	return loop::midpoint(lb, ub);
 }
 

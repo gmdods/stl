@@ -205,7 +205,7 @@ constexpr bool is_partitioned(It f, It l, Fn fn) {
 
 template <typename It, typename Fn>
 constexpr It partition_point(It f, It l, Fn fn) {
-	return loop::binary_bound(f, l, fn);
+	return loop::binary_find(f, l, fn);
 }
 
 // Sorts
@@ -226,7 +226,7 @@ constexpr bool is_sorted(It f, It l) {
 
 template <typename It, typename T>
 constexpr bool binary_search(It f, It l, T val) {
-	return loop::binary(f, l, fn::lt(val), fn::ifnot(fn::eq(val))).found();
+	return loop::binary_recurse(f, l, fn::lt(val), fn::eq(val)).found();
 }
 
 template <typename It, typename T>
@@ -241,7 +241,7 @@ constexpr It upper_bound(It f, It l, T val) {
 
 template <typename It, typename T>
 constexpr range<It> equal_range(It f, It l, T val) {
-	auto ret = loop::binary(f, l, fn::lt(val), fn::ifnot(fn::eq(val)));
+	auto ret = loop::binary_recurse(f, l, fn::lt(val), fn::eq(val));
 	auto [lb, ub] = ret.it;
 	if (ret.found()) {
 		auto mid = loop::midpoint(lb, ub);
