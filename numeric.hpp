@@ -65,8 +65,7 @@ template <typename InIt, typename OutIt, typename Bin>
 constexpr OutIt partial_sum(InIt f, InIt l, OutIt out, Bin bin) {
 	if (f == l) return out;
 	auto init = *f;
-	*out = init;
-	++out;
+	fn::writer(out)(init);
 	++f;
 	return loop::inclusive_scan(f, l, out, init, bin);
 }

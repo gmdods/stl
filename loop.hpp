@@ -70,20 +70,11 @@ struct inout {
 };
 
 template <typename InIt, typename OutIt, typename FnW>
-constexpr exited<inout<InIt, OutIt>> copy_while(InIt f, InIt l, OutIt out,
-						FnW fn) {
-	auto writer = [&out](auto elt) {
-		*out = elt;
-		++out;
-	};
-	auto in = element_while(
-	    f, l, [fn, writer](auto elt) { return fn::bit(fn, writer, elt); });
-	return {{in.it, out}, in.ended_};
-}
-
-template <typename InIt, typename OutIt, typename FnW>
 constexpr inout<InIt, OutIt> copy_each(InIt f, InIt l, OutIt out, FnW fn) {
-	return copy_while(f, l, out, fn::side_effect(fn)).it;
+	auto in = element_each(f, l, [fn, writer = fn::writer(out)](auto elt) {
+		std::invoke(fn, writer, elt);
+	});
+	return {in, out};
 }
 
 template <typename It, typename Fn>

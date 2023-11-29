@@ -30,6 +30,14 @@ struct side_effect {
 	}
 };
 
+template <typename OutIt>
+auto writer(OutIt & out) {
+	return [&out](auto elt) {
+		*out = elt;
+		++out;
+	};
+};
+
 template <typename T>
 struct constant {
 	T val;

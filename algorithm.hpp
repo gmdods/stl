@@ -165,8 +165,10 @@ struct minmax {
 
 template <typename It>
 constexpr minmax<It> minmax_element(It f, It l) {
+	if (f == l) return {l, l};
 	It max = f;
 	It min = f;
+	++f;
 	loop::iterator_each(f, l, [&max, &min](auto it) {
 		if (*it > *max) max = it;
 		if (*it < *min) min = it;
