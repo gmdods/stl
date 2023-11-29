@@ -27,6 +27,15 @@ constexpr T transform_reduce(It f, It l, T init, Bin bin, Fn fn) {
 	return loop::reduce(f, l, init, fn::rhs(bin, fn));
 }
 
+template <typename It, typename T, typename BinR, typename BinM>
+constexpr T inner_product(It f, It l, It s, T init, BinR bin_r, BinM bin_m) {
+	return loop::reduce(f, l, init, [&s, bin_m, bin_r](auto acc, auto elt) {
+		auto ret = std::invoke(bin_r, acc, std::invoke(bin_m, elt, *s));
+		++s;
+		return ret;
+	});
+}
+
 } // namespace loop
 
 #endif // !LOOP_STL_NUMERIC_HPP

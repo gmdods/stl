@@ -31,7 +31,8 @@ int main() {
 	assert(3 == loop::count_if(a.cbegin(), a.cend(), odd));
 	assert(1 == loop::count(a.cbegin(), a.cend(), 3));
 
-	auto place = std::pair{std::next(a.cbegin(), 6), std::next(c.cbegin(), 6)};
+	auto place =
+	    std::pair{std::next(a.cbegin(), 6), std::next(c.cbegin(), 6)};
 	assert(place == loop::mismatch(a.cbegin(), a.cend(), c.cbegin()));
 
 	assert(a.begin() == loop::find_if(a.cbegin(), a.cend(), odd));
@@ -64,6 +65,8 @@ int main() {
 	assert(25 == loop::reduce(a.cbegin(), a.cend(), 0, std::plus{}));
 	assert(0 == loop::transform_reduce(a.cbegin(), a.cend(), 25,
 					   std::plus{}, std::negate{}));
+	assert(-3 == loop::inner_product(a.cbegin(), a.cend(), c.cbegin(), 0,
+					 std::plus{}, std::minus{}));
 
 	std::cout << "OK!" << '\n';
 	return 0;
