@@ -41,9 +41,9 @@ struct constant {
 	}
 };
 
-template <typename Fn, typename T>
-constexpr bool bit(Fn f, T elt) {
-	return static_cast<bool>(std::invoke(f, elt));
+template <typename Fn, typename... Ts>
+constexpr bool bit(Fn f, Ts... elt) {
+	return static_cast<bool>(std::invoke(f, elt...));
 }
 
 template <typename Fn>

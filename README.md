@@ -27,7 +27,7 @@ An implementation of C++ STL
 	- [x] `find` `find_if` `find_if_not`
 	- [ ] `find_end`
 	- [ ] `find_first_of`
-	- [ ] `adjacent_find`
+	- [x] `adjacent_find`
 	- [ ] `search`
 	- [ ] `search_n`
 - **Modifying sequence operations**
@@ -63,8 +63,8 @@ An implementation of C++ STL
 	- [ ] `stable_partition`
 	- [x] `partition_point`
 - **Sorting operations**
-	- [ ] `is_sorted`
-	- [ ] `is_sorted_until`
+	- [x] `is_sorted`
+	- [x] `is_sorted_until`
 	- [ ] `sort`
 	- [ ] `partial_sort`
 	- [ ] `partial_sort_copy`

@@ -58,6 +58,11 @@ constexpr It find(It f, It l, T val) {
 	return loop::find_if(f, l, fn::eq(val));
 }
 
+template <typename It>
+constexpr It adjacent_find(It f, It l) {
+	return loop::adjacent_while(f, l, std::not_equal_to{}).it;
+}
+
 // Min/Max
 
 template <typename It>
@@ -97,6 +102,20 @@ constexpr bool is_partitioned(It f, It l, Fn fn) {
 template <typename It, typename Fn>
 constexpr It partition_point(It f, It l, Fn fn) {
 	return loop::binary_bound(f, l, fn);
+}
+
+// Sorts
+
+template <typename It>
+constexpr It is_sorted_until(It f, It l) {
+	auto it = loop::adjacent_while(f, l, std::less{}).it;
+	++it;
+	return it;
+}
+
+template <typename It>
+constexpr bool is_sorted(It f, It l) {
+	return loop::adjacent_while(f, l, std::less{}).ended();
 }
 
 // Binary Search

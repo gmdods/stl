@@ -50,6 +50,19 @@ constexpr It element_each(It f, It l, Fn fn) {
 	return iterator_each(f, l, fn::deref(fn));
 }
 
+template <typename It, typename Fn>
+constexpr exited<It> adjacent_while(It f, It l, Fn fn) {
+	It t = f;
+	if (f != l) {
+		++f;
+		for (; f != l; ++f) {
+			if (!fn::bit(fn, *t, *f)) return {t, false};
+			t = f;
+		}
+	}
+	return {t, true};
+}
+
 template <typename It, typename Br, typename Fn>
 constexpr exited<range<It>> binary(It f, It l, Br br, Fn fn) {
 	while (f != l) {
