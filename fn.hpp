@@ -57,6 +57,23 @@ struct ifnot {
 	}
 };
 
+template <typename Br, typename Fn>
+struct guard {
+	Br br;
+	Fn fn;
+	guard(Br br, Fn fn) : br(br), fn(fn) {}
+
+	template <typename T>
+	constexpr bool operator()(T elt) const {
+		if (fn::bit(br, elt))
+			return false;
+		else {
+			std::invoke(fn, elt);
+			return true;
+		}
+	}
+};
+
 template <typename Bin, typename Fn>
 struct rhs {
 	Bin bin;

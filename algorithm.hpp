@@ -18,15 +18,8 @@ constexpr void for_each(It f, It l, Fn fn) {
 
 template <typename It, typename Fn>
 constexpr It for_each_n(It f, size_t n, Fn fn) {
-	auto guard = [&n, fn](auto elt) {
-		if (n-- == 0)
-			return false;
-		else {
-			std::invoke(fn, elt);
-			return true;
-		}
-	};
-	return loop::element_while(f, nullptr, guard).it;
+	auto g = fn::guard([&n](auto) { return (n-- == 0); }, fn);
+	return loop::element_while(f, nullptr, g).it;
 }
 
 template <typename It, typename Fn>
@@ -74,14 +67,9 @@ constexpr It find(It f, It l, T val) {
 
 template <typename It>
 constexpr std::pair<It, It> mismatch(It f, It l, It s) {
-	auto it = find_if(f, l, [&s](auto elt) {
-		if (elt != *s)
-			return true;
-		else {
-			++s;
-			return false;
-		}
-	});
+	auto g = fn::guard([&s](auto elt) { return (elt != *s); },
+			   [&s](auto) { ++s; });
+	auto it = find_if_not(f, l, g);
 	return {it, s};
 }
 
@@ -122,11 +110,9 @@ constexpr It min_element(It f, It l) {
 
 template <typename It>
 constexpr bool equal(It f, It l, It s) {
-	return all_of(f, l, [&s](auto elt) {
-		bool eq = elt == *s;
-		++s;
-		return eq;
-	});
+	auto g = fn::guard([&s](auto elt) { return (elt != *s); },
+			   [&s](auto) { ++s; });
+	return all_of(f, l, g);
 }
 
 // Partition

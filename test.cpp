@@ -31,9 +31,10 @@ int main() {
 	assert(3 == loop::count_if(a.cbegin(), a.cend(), odd));
 	assert(1 == loop::count(a.cbegin(), a.cend(), 3));
 
-	auto place =
-	    std::pair{std::next(a.cbegin(), 6), std::next(c.cbegin(), 6)};
-	assert(place == loop::mismatch(a.cbegin(), a.cend(), c.cbegin()));
+	auto [match_a, match_c] =
+	    loop::mismatch(a.cbegin(), a.cend(), c.cbegin());
+	assert(std::next(a.cbegin(), 6) == match_a);
+	assert(std::next(c.cbegin(), 6) == match_c);
 
 	assert(a.begin() == loop::find_if(a.cbegin(), a.cend(), odd));
 	assert(3 == *loop::find(a.cbegin(), a.cend(), 3));

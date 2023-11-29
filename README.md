@@ -8,7 +8,7 @@ An implementation of C++ STL
 	- [x] accumulate
 	- [x] reduce
 	- [x] transform_reduce
-	- [ ] inner_product
+	- [x] inner_product
 	- [ ] adjacent_difference
 	- [ ] partial_sum
 	- [ ] inclusive_scan
