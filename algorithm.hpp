@@ -16,6 +16,19 @@ constexpr void for_each(It f, It l, Fn fn) {
 }
 
 template <typename It, typename Fn>
+constexpr It for_each_n(It f, size_t n, Fn fn) {
+	auto guard = [&n, fn](auto elt) {
+		if (n-- == 0)
+			return false;
+		else {
+			std::invoke(fn, elt);
+			return true;
+		}
+	};
+	return loop::element_while(f, nullptr, guard).it;
+}
+
+template <typename It, typename Fn>
 constexpr size_t count_if(It f, It l, Fn fn) {
 	size_t count = 0;
 	loop::for_each(f, l,

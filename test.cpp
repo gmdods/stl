@@ -22,6 +22,10 @@ int main() {
 	size_t sum = 0;
 	loop::for_each(a.cbegin(), a.cend(), [&sum](auto i) { sum += i; });
 	assert(25 == sum);
+	sum = 0;
+	assert(std::next(a.cbegin(), 2) ==
+	       loop::for_each_n(a.cbegin(), 2, [&sum](auto i) { sum += i; }));
+	assert(3 == sum);
 
 	assert(3 == loop::count_if(a.cbegin(), a.cend(), odd));
 	assert(1 == loop::count(a.cbegin(), a.cend(), 3));

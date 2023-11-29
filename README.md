@@ -21,7 +21,7 @@ An implementation of C++ STL
 - **Non-modifying sequence operations**
 	- [x] `all_of` `any_of` `none_of`
 	- [x] `for_each`
-	- [ ] `for_each_n`
+	- [x] `for_each_n`
 	- [x] `count` `count_if`
 	- [ ] `mismatch`
 	- [x] `find` `find_if` `find_if_not`

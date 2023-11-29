@@ -28,6 +28,14 @@ struct range {
 };
 
 template <typename It, typename Fn>
+constexpr exited<It> iterator_while(It f, std::nullptr_t, Fn fn) {
+	for (;; ++f) {
+		if (!fn::bit(fn, f)) return {f, false};
+	}
+	return {f, true};
+}
+
+template <typename It, typename Fn>
 constexpr exited<It> iterator_while(It f, It l, Fn fn) {
 	for (; f != l; ++f) {
 		if (!fn::bit(fn, f)) return {f, false};
@@ -38,6 +46,11 @@ constexpr exited<It> iterator_while(It f, It l, Fn fn) {
 template <typename It, typename Fn>
 constexpr It iterator_each(It f, It l, Fn fn) {
 	return iterator_while(f, l, fn::side_effect(fn)).it;
+}
+
+template <typename It, typename Fn>
+constexpr exited<It> element_while(It f, std::nullptr_t, Fn fn) {
+	return iterator_while(f, nullptr, fn::deref(fn));
 }
 
 template <typename It, typename Fn>
