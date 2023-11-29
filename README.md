@@ -4,15 +4,15 @@ An implementation of C++ STL
 `<numeric>` [cppreference](https://en.cppreference.com/w/cpp/header/numeric)
 
 - **Functions**
-	- [ ] iota
+	- [x] iota
 	- [x] accumulate
 	- [x] reduce
 	- [x] transform_reduce
 	- [x] inner_product
 	- [ ] adjacent_difference
-	- [ ] partial_sum
-	- [ ] inclusive_scan
-	- [ ] exclusive_scan
+	- [x] partial_sum
+	- [x] inclusive_scan
+	- [x] exclusive_scan
 	- [ ] transform_inclusive_scan
 	- [ ] transform_exclusive_scan
 

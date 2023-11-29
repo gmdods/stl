@@ -19,6 +19,7 @@ int main() {
 	std::array a{1, 2, 3, 4, 5, 6, 4};
 	std::array b{-1, 0, 1, 2, 3, 3, 3, 4};
 	std::array c{1, 2, 3, 4, 5, 6, 7};
+	std::array d{0, 1, 3, 6, 10, 15, 21, 28};
 
 	assert(loop::all_of(a.cbegin(), a.cend(), loop::fn::lt(7)));
 	assert(loop::any_of(a.cbegin(), a.cend(), loop::fn::eq(3)));
@@ -49,6 +50,7 @@ int main() {
 	       loop::adjacent_find(b.cbegin(), b.cend()));
 
 	std::vector<int> o{};
+	o.reserve(16);
 	auto out = std::back_inserter(o);
 
 	loop::copy(a.cbegin(), a.cend(), out);
@@ -69,7 +71,7 @@ int main() {
 
 	loop::transform(a.cbegin(), std::next(a.cend(), -2), out,
 			[](auto elt) { return elt + 1; });
-	assert(same(std::next(a.cbegin()), std::next(a.cend(), -1), o));
+	assert(same(std::next(a.cbegin()), std::prev(a.cend()), o));
 	o.clear();
 
 	loop::replace_copy_if(a.cbegin(), a.cend(), out, lt_3, 2);
@@ -87,7 +89,7 @@ int main() {
 
 	o.assign(3, 0);
 	loop::fill(o.begin(), o.end(), 3);
-	assert(same(three_b, std::next(b.cend(), -1), o));
+	assert(same(three_b, std::prev(b.cend()), o));
 	o.clear();
 
 	o.assign(c.size(), 0);
@@ -98,7 +100,7 @@ int main() {
 
 	o.assign(3, 0);
 	loop::fill_n(o.begin(), 3, 3);
-	assert(same(three_b, std::next(b.cend(), -1), o));
+	assert(same(three_b, std::prev(b.cend()), o));
 	o.clear();
 
 	assert(a.cbegin() == loop::min_element(a.cbegin(), a.cend()));
@@ -110,7 +112,7 @@ int main() {
 	assert(loop::find_if_not(a.cbegin(), a.cend(), lt_3) ==
 	       loop::partition_point(a.cbegin(), a.cend(), lt_3));
 
-	auto last = std::next(a.cend(), -1);
+	auto last = std::prev(a.cend());
 	assert(loop::is_sorted(a.cbegin(), last));
 	assert(last == loop::is_sorted_until(a.cbegin(), a.cend()));
 
@@ -122,11 +124,26 @@ int main() {
 	assert(std::next(three_b, 3) == rng.l);
 	assert(rng == loop::equal_range(b.cbegin(), b.cend(), 3));
 
+	o.assign(c.size(), 0);
+	loop::iota(o.begin(), o.end(), 1);
+	assert(same(c.cbegin(), c.cend(), o));
+	o.clear();
+
 	assert(25 == loop::reduce(a.cbegin(), a.cend(), 0, std::plus{}));
 	assert(0 == loop::transform_reduce(a.cbegin(), a.cend(), 25,
 					   std::plus{}, std::negate{}));
 	assert(-3 == loop::inner_product(a.cbegin(), a.cend(), c.cbegin(), 0,
 					 std::plus{}, std::minus{}));
+
+	loop::inclusive_scan(c.cbegin(), c.cend(), out, 0, std::plus{});
+	assert(same(std::next(d.cbegin()), d.cend(), o));
+	o.clear();
+	loop::exclusive_scan(c.cbegin(), c.cend(), out, 0, std::plus{});
+	assert(same(d.cbegin(), std::prev(d.cend()), o));
+	o.clear();
+	loop::partial_sum(c.cbegin(), c.cend(), out, std::plus{});
+	assert(same(std::next(d.cbegin()), d.cend(), o));
+	o.clear();
 
 	std::cout << "OK!" << '\n';
 	return 0;
