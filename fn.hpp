@@ -8,30 +8,20 @@ namespace loop {
 namespace fn {
 
 template <typename Fn>
-struct deref {
-	Fn f;
-	deref(Fn f) : f(f) {}
-
-	template <typename It>
-	constexpr auto operator()(It it) const {
-		return std::invoke(f, *it);
-	}
+constexpr auto deref(Fn fn) {
+	return [fn](auto it) { return std::invoke(fn, *it); };
 };
 
 template <typename Fn>
-struct side_effect {
-	Fn fn;
-	side_effect(Fn fn) : fn(fn) {}
-
-	template <typename... Ts>
-	constexpr bool operator()(Ts... elt) const {
-		std::invoke(fn, elt...);
+constexpr auto side_effect(Fn fn) {
+	return [fn](auto elt) {
+		std::invoke(fn, elt);
 		return true;
-	}
+	};
 };
 
 template <typename OutIt>
-auto writer(OutIt & out) {
+constexpr auto writer(OutIt & out) {
 	return [&out](auto elt) {
 		*out = elt;
 		++out;
@@ -82,23 +72,10 @@ struct guard {
 	}
 };
 
-template <typename Bin, typename Fn>
-struct rhs {
-	Bin bin;
-	Fn fn;
-	rhs(Bin bin, Fn fn) : bin(bin), fn(fn) {}
-
-	template <typename T>
-	constexpr T operator()(T lhs_, T rhs_) const {
-		return std::invoke(bin, lhs_, std::invoke(fn, rhs_));
-	}
-};
-
 template <typename T>
 struct eq {
 	T val;
 	eq(T val) : val(val) {}
-
 	constexpr bool operator()(T elt) const { return elt == val; }
 };
 
@@ -106,7 +83,6 @@ template <typename T>
 struct lt {
 	T val;
 	lt(T val) : val(val) {}
-
 	constexpr bool operator()(T elt) const { return elt < val; }
 };
 
@@ -114,7 +90,6 @@ template <typename T>
 struct gt {
 	T val;
 	gt(T val) : val(val) {}
-
 	constexpr bool operator()(T elt) const { return val < elt; }
 };
 

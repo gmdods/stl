@@ -29,16 +29,19 @@ constexpr T reduce(It f, It l, T init, Bin bin) {
 
 template <typename It, typename T, typename Bin, typename Fn>
 constexpr T transform_reduce(It f, It l, T init, Bin bin, Fn fn) {
-	return loop::reduce(f, l, init, fn::rhs(bin, fn));
+	return loop::reduce(f, l, init, [bin, fn](auto lhs, auto rhs) {
+		return std::invoke(bin, lhs, std::invoke(fn, rhs));
+	});
 }
 
 template <typename It, typename T, typename BinR, typename BinM>
 constexpr T inner_product(It f, It l, It s, T init, BinR bin_r, BinM bin_m) {
-	return loop::reduce(f, l, init, [&s, bin_m, bin_r](auto acc, auto elt) {
-		auto ret = std::invoke(bin_r, acc, std::invoke(bin_m, elt, *s));
+	auto fn = [&s, bin_m](auto elt) {
+		auto ret = std::invoke(bin_m, elt, *s);
 		++s;
 		return ret;
-	});
+	};
+	return loop::transform_reduce(f, l, init, bin_r, fn);
 }
 
 template <typename InIt, typename OutIt, typename T, typename Bin>
