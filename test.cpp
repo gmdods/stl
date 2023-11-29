@@ -145,6 +145,15 @@ int main() {
 	assert(same(std::next(d.cbegin()), d.cend(), o));
 	o.clear();
 
+	loop::transform_inclusive_scan(c.cbegin(), c.cend(), out, 0,
+				       std::minus{}, std::negate{});
+	assert(same(std::next(d.cbegin()), d.cend(), o));
+	o.clear();
+	loop::transform_exclusive_scan(c.cbegin(), c.cend(), out, 0,
+				       std::minus{}, std::negate{});
+	assert(same(d.cbegin(), std::prev(d.cend()), o));
+	o.clear();
+
 	std::cout << "OK!" << '\n';
 	return 0;
 }

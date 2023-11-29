@@ -29,9 +29,7 @@ constexpr T reduce(It f, It l, T init, Bin bin) {
 
 template <typename It, typename T, typename Bin, typename Fn>
 constexpr T transform_reduce(It f, It l, T init, Bin bin, Fn fn) {
-	return loop::reduce(f, l, init, [bin, fn](auto lhs, auto rhs) {
-		return std::invoke(bin, lhs, std::invoke(fn, rhs));
-	});
+	return loop::reduce(f, l, init, fn::before(bin, fn));
 }
 
 template <typename It, typename T, typename BinR, typename BinM>
@@ -71,6 +69,18 @@ constexpr OutIt partial_sum(InIt f, InIt l, OutIt out, Bin bin) {
 	fn::writer(out)(init);
 	++f;
 	return loop::inclusive_scan(f, l, out, init, bin);
+}
+
+template <typename InIt, typename OutIt, typename T, typename Bin, typename Fn>
+constexpr OutIt transform_inclusive_scan(InIt f, InIt l, OutIt out, T init, Bin bin,
+				     Fn fn) {
+	return loop::inclusive_scan(f, l, out, init, fn::before(bin, fn));
+}
+
+template <typename InIt, typename OutIt, typename T, typename Bin, typename Fn>
+constexpr OutIt transform_exclusive_scan(InIt f, InIt l, OutIt out, T init, Bin bin,
+				     Fn fn) {
+	return loop::exclusive_scan(f, l, out, init, fn::before(bin, fn));
 }
 
 } // namespace loop

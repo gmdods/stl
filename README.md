@@ -13,8 +13,8 @@ An implementation of C++ STL
 	- [x] partial_sum
 	- [x] inclusive_scan
 	- [x] exclusive_scan
-	- [ ] transform_inclusive_scan
-	- [ ] transform_exclusive_scan
+	- [x] transform_inclusive_scan
+	- [x] transform_exclusive_scan
 
 `<algorithm>` [cppreference](https://en.cppreference.com/w/cpp/header/algorithm)
 

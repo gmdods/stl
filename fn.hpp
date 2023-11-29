@@ -28,6 +28,13 @@ constexpr auto writer(OutIt & out) {
 	};
 };
 
+template <typename Bin, typename Fn>
+constexpr auto before(Bin bin, Fn fn) {
+	return [bin, fn](auto lhs, auto rhs) {
+		return std::invoke(bin, lhs, std::invoke(fn, rhs));
+	};
+}
+
 template <typename T>
 struct constant {
 	T val;
