@@ -23,7 +23,7 @@ An implementation of C++ STL
 	- [x] `for_each`
 	- [x] `for_each_n`
 	- [x] `count` `count_if`
-	- [ ] `mismatch`
+	- [x] `mismatch`
 	- [x] `find` `find_if` `find_if_not`
 	- [ ] `find_end`
 	- [ ] `find_first_of`
@@ -96,7 +96,7 @@ An implementation of C++ STL
 	- [x] `min_element`
 	- [x] `minmax_element`
 - **Comparison operations**
-	- [ ] `equal`
+	- [x] `equal`
 	- [ ] `lexicographical_compare`
 	- [ ] `lexicographical_compare_three_way`
 - **Permutation operations**

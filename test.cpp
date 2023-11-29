@@ -14,6 +14,7 @@ int main() {
 
 	std::array a{1, 2, 3, 4, 5, 6, 4};
 	std::array b{-1, 0, 1, 2, 3, 3, 3, 4};
+	std::array c{1, 2, 3, 4, 5, 6, 7};
 
 	assert(loop::all_of(a.cbegin(), a.cend(), loop::fn::lt(7)));
 	assert(loop::any_of(a.cbegin(), a.cend(), loop::fn::eq(3)));
@@ -30,6 +31,9 @@ int main() {
 	assert(3 == loop::count_if(a.cbegin(), a.cend(), odd));
 	assert(1 == loop::count(a.cbegin(), a.cend(), 3));
 
+	auto place = std::pair{std::next(a.cbegin(), 6), std::next(c.cbegin(), 6)};
+	assert(place == loop::mismatch(a.cbegin(), a.cend(), c.cbegin()));
+
 	assert(a.begin() == loop::find_if(a.cbegin(), a.cend(), odd));
 	assert(3 == *loop::find(a.cbegin(), a.cend(), 3));
 	assert(std::next(b.cbegin(), 4) ==
@@ -37,6 +41,8 @@ int main() {
 
 	assert(a.cbegin() == loop::min_element(a.cbegin(), a.cend()));
 	assert(6 == *loop::max_element(a.cbegin(), a.cend()));
+
+	assert(loop::equal(a.cbegin(), a.cend(), a.cbegin()));
 
 	assert(loop::is_partitioned(a.cbegin(), a.cend(), lt_3));
 	assert(loop::find_if_not(a.cbegin(), a.cend(), lt_3) ==

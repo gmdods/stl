@@ -2,6 +2,7 @@
 #define LOOP_STL_ALGORITHM_HPP
 
 #include <stdlib.h>
+#include <utility>
 
 #include "fn.hpp"
 #include "loop.hpp"
@@ -72,6 +73,19 @@ constexpr It find(It f, It l, T val) {
 }
 
 template <typename It>
+constexpr std::pair<It, It> mismatch(It f, It l, It s) {
+	auto it = find_if(f, l, [&s](auto elt) {
+		if (elt != *s)
+			return true;
+		else {
+			++s;
+			return false;
+		}
+	});
+	return {it, s};
+}
+
+template <typename It>
 constexpr It adjacent_find(It f, It l) {
 	return loop::adjacent_while(f, l, std::not_equal_to{}).it;
 }
@@ -102,6 +116,17 @@ constexpr It max_element(It f, It l) {
 template <typename It>
 constexpr It min_element(It f, It l) {
 	return loop::minmax_element(f, l).min;
+}
+
+// Comparision
+
+template <typename It>
+constexpr bool equal(It f, It l, It s) {
+	return all_of(f, l, [&s](auto elt) {
+		bool eq = elt == *s;
+		++s;
+		return eq;
+	});
 }
 
 // Partition
