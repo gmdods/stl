@@ -23,9 +23,9 @@ struct side_effect {
 	Fn fn;
 	side_effect(Fn fn) : fn(fn) {}
 
-	template <typename T>
-	constexpr bool operator()(T elt) const {
-		std::invoke(fn, elt);
+	template <typename... Ts>
+	constexpr bool operator()(Ts... elt) const {
+		std::invoke(fn, elt...);
 		return true;
 	}
 };

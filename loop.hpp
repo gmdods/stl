@@ -63,6 +63,29 @@ constexpr It element_each(It f, It l, Fn fn) {
 	return iterator_each(f, l, fn::deref(fn));
 }
 
+template <typename InIt, typename OutIt>
+struct inout {
+	InIt in;
+	OutIt out;
+};
+
+template <typename InIt, typename OutIt, typename FnW>
+constexpr exited<inout<InIt, OutIt>> copy_while(InIt f, InIt l, OutIt out,
+						FnW fn) {
+	auto writer = [&out](auto elt) {
+		*out = elt;
+		++out;
+	};
+	auto in = element_while(
+	    f, l, [fn, writer](auto elt) { return fn::bit(fn, writer, elt); });
+	return {{in.it, out}, in.ended_};
+}
+
+template <typename InIt, typename OutIt, typename FnW>
+constexpr inout<InIt, OutIt> copy_each(InIt f, InIt l, OutIt out, FnW fn) {
+	return copy_while(f, l, out, fn::side_effect(fn)).it;
+}
+
 template <typename It, typename Fn>
 constexpr exited<It> adjacent_while(It f, It l, Fn fn) {
 	It t = f;

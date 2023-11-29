@@ -31,20 +31,20 @@ An implementation of C++ STL
 	- [ ] `search`
 	- [ ] `search_n`
 - **Modifying sequence operations**
-    - [ ] `copy` `copy_if`
-	- [ ] `copy_n`
+    - [x] `copy` `copy_if`
+	- [x] `copy_n`
 	- [ ] `copy_backward`
 	- [ ] `move`
 	- [ ] `move_backward`
-	- [ ] `fill`
-	- [ ] `fill_n`
-	- [ ] `transform`
-	- [ ] `generate`
-	- [ ] `generate_n`
+	- [x] `fill`
+	- [x] `fill_n`
+	- [x] `transform`
+	- [x] `generate`
+	- [x] `generate_n`
 	- [ ] `remove` `remove_if`
-	- [ ] `remove_copy` `remove_copy_if`
+	- [x] `remove_copy` `remove_copy_if`
 	- [ ] `replace` `replace_if`
-	- [ ] `replace_copy` `replace_copy_if`
+	- [x] `replace_copy` `replace_copy_if`
 	- [ ] `swap`
 	- [ ] `iter_swap`
 	- [ ] `reverse`

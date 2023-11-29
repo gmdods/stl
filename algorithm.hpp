@@ -78,6 +78,62 @@ constexpr It adjacent_find(It f, It l) {
 	return loop::adjacent_while(f, l, std::not_equal_to{}).it;
 }
 
+// Modifying
+
+template <typename InIt, typename OutIt, typename Fn>
+constexpr OutIt copy_if(InIt f, InIt l, OutIt out, Fn fn) {
+	auto wr = [fn](auto writer, auto elt) {
+		if (fn::bit(fn, elt)) std::invoke(writer, elt);
+	};
+	return loop::copy_each(f, l, out, wr).out;
+}
+
+template <typename InIt, typename OutIt>
+constexpr OutIt copy(InIt f, InIt l, OutIt out) {
+	return loop::copy_if(f, l, out, fn::constant(true));
+}
+
+template <typename InIt, typename OutIt>
+constexpr inout<InIt, OutIt> copy_n(InIt f, size_t n, OutIt out) {
+	auto writer = [&out](auto elt) {
+		*out = elt;
+		++out;
+	};
+	auto g = fn::guard([&n](auto) { return (n-- == 0); }, writer);
+	auto in = loop::element_while(f, nullptr, g).it;
+	return {in, out};
+}
+
+template <typename InIt, typename OutIt, typename Fn>
+constexpr OutIt remove_copy_if(InIt f, InIt l, OutIt out, Fn fn) {
+	return loop::copy_if(f, l, out, fn::ifnot(fn));
+}
+
+template <typename InIt, typename OutIt, typename T>
+constexpr OutIt remove_copy(InIt f, InIt l, OutIt out, T val) {
+	return loop::remove_copy_if(f, l, out, fn::eq(val));
+}
+
+template <typename InIt, typename OutIt, typename Fn>
+constexpr OutIt transform(InIt f, InIt l, OutIt out, Fn fn) {
+	auto wr = [fn](auto writer, auto elt) {
+		std::invoke(writer, std::invoke(fn, elt));
+	};
+	return loop::copy_each(f, l, out, wr).out;
+}
+
+template <typename InIt, typename OutIt, typename Fn, typename T>
+constexpr OutIt replace_copy_if(InIt f, InIt l, OutIt out, Fn fn, T anew) {
+	auto re = [fn, anew](T elt) { return fn::bit(fn, elt) ? anew : elt; };
+	return loop::transform(f, l, out, re);
+}
+
+template <typename InIt, typename OutIt, typename T>
+constexpr inout<InIt, OutIt> replace_copy(InIt f, InIt l, OutIt out, T prev,
+					  T anew) {
+	return loop::replace_copy_if(f, l, out, fn::eq(prev), anew);
+}
+
 // Min/Max
 
 template <typename It>
