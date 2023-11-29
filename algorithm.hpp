@@ -134,6 +134,28 @@ constexpr inout<InIt, OutIt> replace_copy(InIt f, InIt l, OutIt out, T prev,
 	return loop::replace_copy_if(f, l, out, fn::eq(prev), anew);
 }
 
+template <typename It, typename Fn>
+constexpr void generate(It f, It l, Fn gen) {
+	loop::iterator_each(f, l, [gen](auto it) { *it = std::invoke(gen); });
+}
+
+template <typename It, typename T>
+constexpr void fill(It f, It l, T val) {
+	loop::generate(f, l, [val]() { return val; });
+}
+
+template <typename It, typename Fn>
+constexpr void generate_n(It f, size_t n, Fn gen) {
+	auto g = fn::guard([&n](auto) { return (n-- == 0); },
+			   [gen](auto it) { *it = std::invoke(gen); });
+	loop::iterator_while(f, nullptr, g);
+}
+
+template <typename It, typename T>
+constexpr void fill_n(It f, size_t n, T val) {
+	loop::generate_n(f, n, [val]() { return val; });
+}
+
 // Min/Max
 
 template <typename It>

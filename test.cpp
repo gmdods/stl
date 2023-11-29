@@ -40,42 +40,66 @@ int main() {
 	assert(std::next(a.cbegin(), 6) == match_a);
 	assert(std::next(c.cbegin(), 6) == match_c);
 
-	assert(a.begin() == loop::find_if(a.cbegin(), a.cend(), odd));
 	auto three_a = loop::find(a.cbegin(), a.cend(), 3);
+	auto three_b = loop::find(b.cbegin(), b.cend(), 3);
+
+	assert(a.begin() == loop::find_if(a.cbegin(), a.cend(), odd));
 	assert(3 == *three_a);
 	assert(std::next(b.cbegin(), 4) ==
 	       loop::adjacent_find(b.cbegin(), b.cend()));
 
-	std::vector<int> buffer{};
-	auto out = std::back_inserter(buffer);
+	std::vector<int> o{};
+	auto out = std::back_inserter(o);
 
 	loop::copy(a.cbegin(), a.cend(), out);
-	assert(same(a.cbegin(), a.cend(), buffer));
-	buffer.clear();
+	assert(same(a.cbegin(), a.cend(), o));
+	o.clear();
 
 	loop::copy_if(a.cbegin(), a.cend(), out, lt_3);
-	assert(same(a.cbegin(), three_a, buffer));
-	buffer.clear();
+	assert(same(a.cbegin(), three_a, o));
+	o.clear();
 
 	loop::copy_n(a.cbegin(), std::distance(a.cbegin(), three_a), out);
-	assert(same(a.cbegin(), three_a, buffer));
-	buffer.clear();
+	assert(same(a.cbegin(), three_a, o));
+	o.clear();
 
 	loop::remove_copy_if(a.cbegin(), a.cend(), out, lt_3);
-	assert(same(three_a, a.cend(), buffer));
-	buffer.clear();
+	assert(same(three_a, a.cend(), o));
+	o.clear();
 
 	loop::transform(a.cbegin(), std::next(a.cend(), -2), out,
 			[](auto elt) { return elt + 1; });
-	assert(same(std::next(a.cbegin()), std::next(a.cend(), -1), buffer));
-	buffer.clear();
+	assert(same(std::next(a.cbegin()), std::next(a.cend(), -1), o));
+	o.clear();
 
 	loop::replace_copy_if(a.cbegin(), a.cend(), out, lt_3, 2);
-	assert(buffer[0] == 2);
-	assert(buffer[1] == 2);
-	buffer.erase(buffer.begin(), std::next(buffer.begin(), 2));
-	assert(same(std::next(a.cbegin(), 2), a.cend(), buffer));
-	buffer.clear();
+	assert(o[0] == 2);
+	assert(o[1] == 2);
+	o.erase(o.begin(), std::next(o.begin(), 2));
+	assert(same(std::next(a.cbegin(), 2), a.cend(), o));
+	o.clear();
+
+	o.assign(c.size(), 0);
+	int i = 0;
+	loop::generate(o.begin(), o.end(), [&i]() { return ++i; });
+	assert(same(c.cbegin(), c.cend(), o));
+	o.clear();
+
+	o.assign(3, 0);
+	loop::fill(o.begin(), o.end(), 3);
+	assert(same(three_b, std::next(b.cend(), -1), o));
+	o.clear();
+
+	o.assign(c.size(), 0);
+	int j = 0;
+	loop::generate_n(o.begin(), c.size(), [&j]() { return ++j; });
+	assert(same(c.cbegin(), c.cend(), o));
+	o.clear();
+
+	o.assign(3, 0);
+	loop::fill_n(o.begin(), 3, 3);
+	assert(same(three_b, std::next(b.cend(), -1), o));
+	o.clear();
 
 	assert(a.cbegin() == loop::min_element(a.cbegin(), a.cend()));
 	assert(6 == *loop::max_element(a.cbegin(), a.cend()));
@@ -90,7 +114,6 @@ int main() {
 	assert(loop::is_sorted(a.cbegin(), last));
 	assert(last == loop::is_sorted_until(a.cbegin(), a.cend()));
 
-	auto three_b = loop::find(b.cbegin(), b.cend(), 3);
 	auto rng = loop::range{loop::lower_bound(b.cbegin(), b.cend(), 3),
 			       loop::upper_bound(b.cbegin(), b.cend(), 3)};
 	assert(loop::binary_search(b.cbegin(), b.cend(), 3));
