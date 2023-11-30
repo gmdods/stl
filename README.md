@@ -9,7 +9,7 @@ An implementation of C++ STL
 	- [x] reduce
 	- [x] transform_reduce
 	- [x] inner_product
-	- [ ] adjacent_difference
+	- [x] adjacent_difference
 	- [x] partial_sum
 	- [x] inclusive_scan
 	- [x] exclusive_scan
@@ -55,7 +55,7 @@ An implementation of C++ STL
 	- [ ] `random_shuffle` `shuffle`
 	- [ ] `sample`
 	- [ ] `unique`
-	- [ ] `unique_copy`
+	- [x] `unique_copy`
 - **Partitioning operations**
 	- [x] `is_partitioned`
 	- [ ] `partition`

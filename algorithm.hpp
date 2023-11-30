@@ -95,11 +95,7 @@ constexpr OutIt copy(InIt f, InIt l, OutIt out) {
 
 template <typename InIt, typename OutIt>
 constexpr inout<InIt, OutIt> copy_n(InIt f, size_t n, OutIt out) {
-	auto writer = [&out](auto elt) {
-		*out = elt;
-		++out;
-	};
-	auto g = fn::guard([&n](auto) { return (n-- == 0); }, writer);
+	auto g = fn::guard([&n](auto) { return (n-- == 0); }, fn::writer(out));
 	auto in = loop::element_while(f, nullptr, g).it;
 	return {in, out};
 }
@@ -112,6 +108,16 @@ constexpr OutIt remove_copy_if(InIt f, InIt l, OutIt out, Fn fn) {
 template <typename InIt, typename OutIt, typename T>
 constexpr OutIt remove_copy(InIt f, InIt l, OutIt out, T val) {
 	return loop::remove_copy_if(f, l, out, fn::eq(val));
+}
+
+template <typename InIt, typename OutIt>
+constexpr OutIt unique_copy(InIt f, InIt l, OutIt out) {
+	if (f == l) return out;
+	fn::writer(out)(*f);
+	auto wr = [](auto writer, auto lhs, auto rhs) {
+		if (rhs != lhs) std::invoke(writer, rhs);
+	};
+	return loop::copy_adjacent(f, l, out, wr).out;
 }
 
 template <typename InIt, typename OutIt, typename Fn>

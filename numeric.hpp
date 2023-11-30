@@ -42,6 +42,16 @@ constexpr T inner_product(It f, It l, It s, T init, BinR bin_r, BinM bin_m) {
 	return loop::transform_reduce(f, l, init, bin_r, fn);
 }
 
+template <typename InIt, typename OutIt, typename Fn>
+constexpr OutIt adjancent_difference(InIt f, InIt l, OutIt out, Fn fn) {
+	if (f == l) return out;
+	fn::writer(out)(*f);
+	auto wr = [fn](auto writer, auto lhs, auto rhs) {
+		std::invoke(writer, std::invoke(fn, rhs, lhs));
+	};
+	return loop::copy_adjacent(f, l, out, wr).out;
+}
+
 template <typename InIt, typename OutIt, typename T, typename Bin>
 constexpr OutIt inclusive_scan(InIt f, InIt l, OutIt out, T val, Bin bin) {
 	T acc = val;
@@ -72,14 +82,14 @@ constexpr OutIt partial_sum(InIt f, InIt l, OutIt out, Bin bin) {
 }
 
 template <typename InIt, typename OutIt, typename T, typename Bin, typename Fn>
-constexpr OutIt transform_inclusive_scan(InIt f, InIt l, OutIt out, T init, Bin bin,
-				     Fn fn) {
+constexpr OutIt transform_inclusive_scan(InIt f, InIt l, OutIt out, T init,
+					 Bin bin, Fn fn) {
 	return loop::inclusive_scan(f, l, out, init, fn::before(bin, fn));
 }
 
 template <typename InIt, typename OutIt, typename T, typename Bin, typename Fn>
-constexpr OutIt transform_exclusive_scan(InIt f, InIt l, OutIt out, T init, Bin bin,
-				     Fn fn) {
+constexpr OutIt transform_exclusive_scan(InIt f, InIt l, OutIt out, T init,
+					 Bin bin, Fn fn) {
 	return loop::exclusive_scan(f, l, out, init, fn::before(bin, fn));
 }
 

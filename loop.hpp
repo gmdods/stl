@@ -90,6 +90,16 @@ constexpr exited<It> adjacent_while(It f, It l, Fn fn) {
 	return {t, true};
 }
 
+template <typename InIt, typename OutIt, typename FnW>
+constexpr inout<InIt, OutIt> copy_adjacent(InIt f, InIt l, OutIt out, FnW fn) {
+	auto in = adjacent_while(
+	    f, l, [fn, writer = fn::writer(out)](auto lhs, auto rhs) {
+		    std::invoke(fn, writer, lhs, rhs);
+		    return true;
+	    }).it;
+	return {in, out};
+}
+
 template <typename It, typename Br, typename Fn>
 constexpr exited<range<It>> binary_recurse(It f, It l, Br br, Fn fn) {
 	while (f != l) {

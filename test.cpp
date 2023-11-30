@@ -69,6 +69,10 @@ int main() {
 	assert(same(three_a, a.cend(), o));
 	o.clear();
 
+	loop::unique_copy(b.cbegin(), std::prev(b.cend()), out);
+	assert(same(b.cbegin(), std::next(three_b), o));
+	o.clear();
+
 	loop::transform(a.cbegin(), std::next(a.cend(), -2), out,
 			[](auto elt) { return elt + 1; });
 	assert(same(std::next(a.cbegin()), std::prev(a.cend()), o));
@@ -134,6 +138,10 @@ int main() {
 					   std::plus{}, std::negate{}));
 	assert(-3 == loop::inner_product(a.cbegin(), a.cend(), c.cbegin(), 0,
 					 std::plus{}, std::minus{}));
+
+	loop::adjancent_difference(c.cbegin(), c.cend(), out, std::minus{});
+	assert(all_of(o.cbegin(), o.cend(), loop::fn::eq(1)));
+	o.clear();
 
 	loop::inclusive_scan(c.cbegin(), c.cend(), out, 0, std::plus{});
 	assert(same(std::next(d.cbegin()), d.cend(), o));
