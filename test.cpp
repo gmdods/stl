@@ -49,6 +49,12 @@ int main() {
 	assert(std::next(b.cbegin(), 4) ==
 	       loop::adjacent_find(b.cbegin(), b.cend()));
 
+	assert(three_a == loop::find_first_of(a.cbegin(), a.cend(), three_a,
+					      std::next(three_a)));
+	assert(three_a == loop::search(a.cbegin(), a.cend(),
+				       std::prev(b.cend(), 2),
+				       std::prev(b.cend())));
+
 	std::vector<int> o{};
 	o.reserve(16);
 	auto out = std::back_inserter(o);

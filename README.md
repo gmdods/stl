@@ -26,14 +26,14 @@ An implementation of C++ STL
 	- [x] `mismatch`
 	- [x] `find` `find_if` `find_if_not`
 	- [ ] `find_end`
-	- [ ] `find_first_of`
+	- [x] `find_first_of`
 	- [x] `adjacent_find`
-	- [ ] `search`
+	- [x] `search`
 	- [ ] `search_n`
 - **Modifying sequence operations**
     - [x] `copy` `copy_if`
-	- [x] `copy_n`
-	- [ ] `copy_backward`
+    - [x] `copy_n`
+    - [ ] `copy_backward`
 	- [ ] `move`
 	- [ ] `move_backward`
 	- [x] `fill`

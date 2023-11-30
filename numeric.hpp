@@ -32,8 +32,8 @@ constexpr T transform_reduce(It f, It l, T init, Fn2 fn2, Fn1 fn1) {
 	return loop::reduce(f, l, init, fn::before(fn2, fn1));
 }
 
-template <typename It, typename T, typename Fn2R, typename Fn2M>
-constexpr T inner_product(It f, It l, It s, T init, Fn2R fn2_r, Fn2M fn2_m) {
+template <typename ItL, typename ItR, typename T, typename Fn2R, typename Fn2M>
+constexpr T inner_product(ItL f, ItL l, ItR s, T init, Fn2R fn2_r, Fn2M fn2_m) {
 	auto fn1 = [&s, fn2_m](auto elt) {
 		auto ret = std::invoke(fn2_m, elt, *s);
 		++s;

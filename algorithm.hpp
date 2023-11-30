@@ -65,17 +65,43 @@ constexpr It find(It f, It l, T val) {
 	return loop::find_if(f, l, fn::eq(val));
 }
 
-template <typename It>
-constexpr std::pair<It, It> mismatch(It f, It l, It s) {
+template <typename ItL, typename ItR>
+constexpr std::pair<ItL, ItR> mismatch(ItL f, ItL l, ItR s) {
 	auto g = fn::guard([&s](auto elt) { return (elt != *s); },
 			   [&s](auto) { ++s; });
 	auto it = find_if_not(f, l, g);
 	return {it, s};
 }
 
+template <typename ItL, typename ItR>
+constexpr std::pair<ItL, ItR> mismatch(ItL f, ItL l, ItR s, ItR t) {
+	return loop::parallel_while(f, l, s, t, std::equal_to{}).it;
+}
+
 template <typename It>
 constexpr It adjacent_find(It f, It l) {
 	return loop::adjacent_while(f, l, std::not_equal_to{}).it;
+}
+
+template <typename ItL, typename ItR>
+constexpr ItL find_first_of(ItL f, ItL l, ItR s, ItR t) {
+	auto if1 = [s, t](auto elt) { return loop::any_of(s, t, fn::eq(elt)); };
+	return loop::find_if(f, l, if1);
+}
+
+template <typename ItL, typename ItR>
+constexpr ItL search(ItL f, ItL l, ItR s, ItR t) {
+	auto ret = l;
+	auto br1 = [&ret, s, t, l](auto it) {
+		auto [l_, t_] = loop::mismatch(it, l, s, t);
+		if (t_ == t) {
+			ret = it;
+			return false;
+		}
+		return (l_ != l);
+	};
+	loop::iterator_while(f, nullptr, br1);
+	return ret;
 }
 
 // Modifying
@@ -199,11 +225,16 @@ constexpr It min_element(It f, It l) {
 
 // Comparision
 
-template <typename It>
-constexpr bool equal(It f, It l, It s) {
+template <typename ItL, typename ItR>
+constexpr bool equal(ItL f, ItL l, ItR s) {
 	auto g = fn::guard([&s](auto elt) { return (elt != *s); },
 			   [&s](auto) { ++s; });
-	return all_of(f, l, g);
+	return loop::all_of(f, l, g);
+}
+
+template <typename ItL, typename ItR>
+constexpr bool equal(ItL f, ItL l, ItR s, ItR t) {
+	return loop::parallel_while(f, l, s, t, std::equal_to{}).ended();
 }
 
 // Partition

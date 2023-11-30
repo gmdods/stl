@@ -88,6 +88,15 @@ constexpr exited<It> adjacent_while(It f, It l, Br2 br2) {
 	return {t, true};
 }
 
+template <typename ItL, typename ItR, typename Br2>
+constexpr exited<std::pair<ItL, ItR>> parallel_while(ItL f, ItL l, ItR s, ItR t,
+						     Br2 br2) {
+	for (; (f != l) && (s != t); (void) ++f, (void) ++s) {
+		if (!fn::bit(br2, *f, *s)) return {{f, s}, false};
+	}
+	return {{f, s}, true};
+}
+
 template <typename InIt, typename OutIt, typename Wr2>
 constexpr inout<InIt, OutIt> copy_adjacent(InIt f, InIt l, OutIt out, Wr2 wr2) {
 	auto br2 = [wr2, writer = fn::writer(out)](auto lhs, auto rhs) {
