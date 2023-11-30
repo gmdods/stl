@@ -122,6 +122,15 @@ int main() {
 	assert(loop::find_if_not(a.cbegin(), a.cend(), lt_3) ==
 	       loop::partition_point(a.cbegin(), a.cend(), lt_3));
 
+	std::vector<int> o_{};
+	o_.reserve(16);
+	auto out_ = std::back_inserter(o_);
+
+	loop::partition_copy(a.cbegin(), a.cend(), out, out_, lt_3);
+	assert(same(a.cbegin(), three_a, o));
+	assert(same(three_a, a.cend(), o_));
+	o.clear();
+
 	auto last = std::prev(a.cend());
 	assert(loop::is_sorted(a.cbegin(), last));
 	assert(last == loop::is_sorted_until(a.cbegin(), a.cend()));

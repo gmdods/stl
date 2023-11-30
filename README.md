@@ -59,7 +59,7 @@ An implementation of C++ STL
 - **Partitioning operations**
 	- [x] `is_partitioned`
 	- [ ] `partition`
-	- [ ] `partition_copy`
+	- [x] `partition_copy`
 	- [ ] `stable_partition`
 	- [x] `partition_point`
 - **Sorting operations**

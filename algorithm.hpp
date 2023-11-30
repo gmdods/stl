@@ -214,6 +214,19 @@ constexpr bool is_partitioned(It f, It l, If1 if1) {
 	return loop::none_of(f, l, if1);
 }
 
+template <typename InIt, typename OutItT, typename OutItF, typename If1>
+constexpr std::pair<OutItT, OutItF> partition_copy(InIt f, InIt l, OutItT out_t,
+						   OutItF out_f, If1 if1) {
+	auto wr1 = [if1, writer_f = fn::writer(out_f)](auto writer_t,
+						       auto elt) {
+		if (fn::bit(if1, elt))
+			std::invoke(writer_t, elt);
+		else
+			std::invoke(writer_f, elt);
+	};
+	return {loop::copy_each(f, l, out_t, wr1).out, out_f};
+}
+
 template <typename It, typename If1>
 constexpr It partition_point(It f, It l, If1 if1) {
 	return loop::binary_find(f, l, if1);
