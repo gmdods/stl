@@ -11,22 +11,22 @@ namespace loop {
 
 // Non-modifying
 
-template <typename It, typename Fn>
-constexpr void for_each(It f, It l, Fn fn) {
-	loop::element_each(f, l, fn);
+template <typename It, typename Fn1>
+constexpr void for_each(It f, It l, Fn1 fn1) {
+	loop::element_each(f, l, fn1);
 }
 
-template <typename It, typename Fn>
-constexpr It for_each_n(It f, size_t n, Fn fn) {
-	auto g = fn::guard([&n](auto) { return (n-- == 0); }, fn);
+template <typename It, typename Fn1>
+constexpr It for_each_n(It f, size_t n, Fn1 fn1) {
+	auto g = fn::guard([&n](auto) { return (n-- == 0); }, fn1);
 	return loop::element_while(f, nullptr, g).it;
 }
 
-template <typename It, typename Fn>
-constexpr size_t count_if(It f, It l, Fn fn) {
+template <typename It, typename If1>
+constexpr size_t count_if(It f, It l, If1 if1) {
 	size_t count = 0;
 	loop::for_each(f, l,
-		       [&count, fn](auto elt) { count += fn::bit(fn, elt); });
+		       [&count, if1](auto elt) { count += fn::bit(if1, elt); });
 	return count;
 }
 
@@ -35,29 +35,29 @@ constexpr size_t count(It f, It l, T val) {
 	return loop::count_if(f, l, fn::eq(val));
 }
 
-template <typename It, typename Fn>
-constexpr bool all_of(It f, It l, Fn fn) {
-	return loop::element_while(f, l, fn).ended();
+template <typename It, typename If1>
+constexpr bool all_of(It f, It l, If1 if1) {
+	return loop::element_while(f, l, if1).ended();
 }
 
-template <typename It, typename Fn>
-constexpr bool none_of(It f, It l, Fn fn) {
-	return loop::all_of(f, l, fn::ifnot(fn));
+template <typename It, typename If1>
+constexpr bool none_of(It f, It l, If1 if1) {
+	return loop::all_of(f, l, fn::ifnot(if1));
 }
 
-template <typename It, typename Fn>
-constexpr bool any_of(It f, It l, Fn fn) {
-	return !loop::none_of(f, l, fn);
+template <typename It, typename If1>
+constexpr bool any_of(It f, It l, If1 if1) {
+	return !loop::none_of(f, l, if1);
 }
 
-template <typename It, typename Fn>
-constexpr It find_if_not(It f, It l, Fn fn) {
-	return loop::element_while(f, l, fn).it;
+template <typename It, typename If1>
+constexpr It find_if_not(It f, It l, If1 if1) {
+	return loop::element_while(f, l, if1).it;
 }
 
-template <typename It, typename Fn>
-constexpr It find_if(It f, It l, Fn fn) {
-	return loop::find_if_not(f, l, fn::ifnot(fn));
+template <typename It, typename If1>
+constexpr It find_if(It f, It l, If1 if1) {
+	return loop::find_if_not(f, l, fn::ifnot(if1));
 }
 
 template <typename It, typename T>
@@ -80,12 +80,12 @@ constexpr It adjacent_find(It f, It l) {
 
 // Modifying
 
-template <typename InIt, typename OutIt, typename Fn>
-constexpr OutIt copy_if(InIt f, InIt l, OutIt out, Fn fn) {
-	auto wr = [fn](auto writer, auto elt) {
-		if (fn::bit(fn, elt)) std::invoke(writer, elt);
+template <typename InIt, typename OutIt, typename If1>
+constexpr OutIt copy_if(InIt f, InIt l, OutIt out, If1 if1) {
+	auto wr1 = [if1](auto writer, auto elt) {
+		if (fn::bit(if1, elt)) std::invoke(writer, elt);
 	};
-	return loop::copy_each(f, l, out, wr).out;
+	return loop::copy_each(f, l, out, wr1).out;
 }
 
 template <typename InIt, typename OutIt>
@@ -100,9 +100,9 @@ constexpr inout<InIt, OutIt> copy_n(InIt f, size_t n, OutIt out) {
 	return {in, out};
 }
 
-template <typename InIt, typename OutIt, typename Fn>
-constexpr OutIt remove_copy_if(InIt f, InIt l, OutIt out, Fn fn) {
-	return loop::copy_if(f, l, out, fn::ifnot(fn));
+template <typename InIt, typename OutIt, typename If1>
+constexpr OutIt remove_copy_if(InIt f, InIt l, OutIt out, If1 if1) {
+	return loop::copy_if(f, l, out, fn::ifnot(if1));
 }
 
 template <typename InIt, typename OutIt, typename T>
@@ -120,28 +120,27 @@ constexpr OutIt unique_copy(InIt f, InIt l, OutIt out) {
 	return loop::copy_adjacent(f, l, out, wr).out;
 }
 
-template <typename InIt, typename OutIt, typename Fn>
-constexpr OutIt transform(InIt f, InIt l, OutIt out, Fn fn) {
-	auto wr = [fn](auto writer, auto elt) {
-		std::invoke(writer, std::invoke(fn, elt));
+template <typename InIt, typename OutIt, typename Fn1>
+constexpr OutIt transform(InIt f, InIt l, OutIt out, Fn1 fn1) {
+	auto wr1 = [fn1](auto writer, auto elt) {
+		std::invoke(writer, std::invoke(fn1, elt));
 	};
-	return loop::copy_each(f, l, out, wr).out;
+	return loop::copy_each(f, l, out, wr1).out;
 }
 
-template <typename InIt, typename OutIt, typename Fn, typename T>
-constexpr OutIt replace_copy_if(InIt f, InIt l, OutIt out, Fn fn, T anew) {
-	auto re = [fn, anew](T elt) { return fn::bit(fn, elt) ? anew : elt; };
+template <typename InIt, typename OutIt, typename If1, typename T>
+constexpr OutIt replace_copy_if(InIt f, InIt l, OutIt out, If1 if1, T anew) {
+	auto re = [if1, anew](T elt) { return fn::bit(if1, elt) ? anew : elt; };
 	return loop::transform(f, l, out, re);
 }
 
 template <typename InIt, typename OutIt, typename T>
-constexpr inout<InIt, OutIt> replace_copy(InIt f, InIt l, OutIt out, T prev,
-					  T anew) {
+constexpr OutIt replace_copy(InIt f, InIt l, OutIt out, T prev, T anew) {
 	return loop::replace_copy_if(f, l, out, fn::eq(prev), anew);
 }
 
-template <typename It, typename Fn>
-constexpr void generate(It f, It l, Fn gen) {
+template <typename It, typename Fn0>
+constexpr void generate(It f, It l, Fn0 gen) {
 	loop::iterator_each(f, l, [gen](auto it) { *it = std::invoke(gen); });
 }
 
@@ -150,8 +149,8 @@ constexpr void fill(It f, It l, T val) {
 	loop::generate(f, l, [val]() { return val; });
 }
 
-template <typename It, typename Fn>
-constexpr void generate_n(It f, size_t n, Fn gen) {
+template <typename It, typename Fn0>
+constexpr void generate_n(It f, size_t n, Fn0 gen) {
 	auto g = fn::guard([&n](auto) { return (n-- == 0); },
 			   [gen](auto it) { *it = std::invoke(gen); });
 	loop::iterator_while(f, nullptr, g);
@@ -203,15 +202,15 @@ constexpr bool equal(It f, It l, It s) {
 
 // Partition
 
-template <typename It, typename Fn>
-constexpr bool is_partitioned(It f, It l, Fn fn) {
-	f = loop::find_if_not(f, l, fn);
-	return loop::none_of(f, l, fn);
+template <typename It, typename If1>
+constexpr bool is_partitioned(It f, It l, If1 if1) {
+	f = loop::find_if_not(f, l, if1);
+	return loop::none_of(f, l, if1);
 }
 
-template <typename It, typename Fn>
-constexpr It partition_point(It f, It l, Fn fn) {
-	return loop::binary_find(f, l, fn);
+template <typename It, typename If1>
+constexpr It partition_point(It f, It l, If1 if1) {
+	return loop::binary_find(f, l, if1);
 }
 
 // Sorts
@@ -250,7 +249,7 @@ constexpr range<It> equal_range(It f, It l, T val) {
 	auto ret = loop::binary_recurse(f, l, fn::lt(val), fn::eq(val));
 	auto [lb, ub] = ret.it;
 	if (ret.found()) {
-		auto mid = loop::midpoint(lb, ub);
+		auto mid = fn::midpoint(lb, ub);
 		return {loop::lower_bound(lb, mid, val),
 			loop::upper_bound(mid, ub, val)};
 	} else {

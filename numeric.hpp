@@ -14,83 +14,83 @@ constexpr void iota(It f, It l, T val) {
 	loop::generate(f, l, [&val]() { return val++; });
 }
 
-template <typename It, typename T, typename Bin>
-constexpr T accumulate(It f, It l, T init, Bin bin) {
+template <typename It, typename T, typename Fn2>
+constexpr T accumulate(It f, It l, T init, Fn2 fn2) {
 	T acc = init;
 	loop::for_each(
-	    f, l, [&acc, bin](auto elt) { acc = std::invoke(bin, acc, elt); });
+	    f, l, [&acc, fn2](auto elt) { acc = std::invoke(fn2, acc, elt); });
 	return acc;
 }
 
-template <typename It, typename T, typename Bin>
-constexpr T reduce(It f, It l, T init, Bin bin) {
-	return loop::accumulate(f, l, init, bin);
+template <typename It, typename T, typename Fn2>
+constexpr T reduce(It f, It l, T init, Fn2 fn2) {
+	return loop::accumulate(f, l, init, fn2);
 }
 
-template <typename It, typename T, typename Bin, typename Fn>
-constexpr T transform_reduce(It f, It l, T init, Bin bin, Fn fn) {
-	return loop::reduce(f, l, init, fn::before(bin, fn));
+template <typename It, typename T, typename Fn2, typename Fn1>
+constexpr T transform_reduce(It f, It l, T init, Fn2 fn2, Fn1 fn1) {
+	return loop::reduce(f, l, init, fn::before(fn2, fn1));
 }
 
-template <typename It, typename T, typename BinR, typename BinM>
-constexpr T inner_product(It f, It l, It s, T init, BinR bin_r, BinM bin_m) {
-	auto fn = [&s, bin_m](auto elt) {
-		auto ret = std::invoke(bin_m, elt, *s);
+template <typename It, typename T, typename Fn2R, typename Fn2M>
+constexpr T inner_product(It f, It l, It s, T init, Fn2R fn2_r, Fn2M fn2_m) {
+	auto fn1 = [&s, fn2_m](auto elt) {
+		auto ret = std::invoke(fn2_m, elt, *s);
 		++s;
 		return ret;
 	};
-	return loop::transform_reduce(f, l, init, bin_r, fn);
+	return loop::transform_reduce(f, l, init, fn2_r, fn1);
 }
 
-template <typename InIt, typename OutIt, typename Fn>
-constexpr OutIt adjancent_difference(InIt f, InIt l, OutIt out, Fn fn) {
+template <typename InIt, typename OutIt, typename Fn2>
+constexpr OutIt adjancent_difference(InIt f, InIt l, OutIt out, Fn2 fn2) {
 	if (f == l) return out;
 	fn::writer(out)(*f);
-	auto wr = [fn](auto writer, auto lhs, auto rhs) {
-		std::invoke(writer, std::invoke(fn, rhs, lhs));
+	auto wr2 = [fn2](auto writer, auto lhs, auto rhs) {
+		std::invoke(writer, std::invoke(fn2, rhs, lhs));
 	};
-	return loop::copy_adjacent(f, l, out, wr).out;
+	return loop::copy_adjacent(f, l, out, wr2).out;
 }
 
-template <typename InIt, typename OutIt, typename T, typename Bin>
-constexpr OutIt inclusive_scan(InIt f, InIt l, OutIt out, T val, Bin bin) {
+template <typename InIt, typename OutIt, typename T, typename Fn2>
+constexpr OutIt inclusive_scan(InIt f, InIt l, OutIt out, T val, Fn2 fn2) {
 	T acc = val;
-	auto wr = [&acc, bin](auto writer, auto elt) {
-		acc = std::invoke(bin, acc, elt);
+	auto wr1 = [&acc, fn2](auto writer, auto elt) {
+		acc = std::invoke(fn2, acc, elt);
 		std::invoke(writer, acc);
 	};
-	return loop::copy_each(f, l, out, wr).out;
+	return loop::copy_each(f, l, out, wr1).out;
 }
 
-template <typename InIt, typename OutIt, typename T, typename Bin>
-constexpr OutIt exclusive_scan(InIt f, InIt l, OutIt out, T val, Bin bin) {
+template <typename InIt, typename OutIt, typename T, typename Fn2>
+constexpr OutIt exclusive_scan(InIt f, InIt l, OutIt out, T val, Fn2 fn2) {
 	T acc = val;
-	auto wr = [&acc, bin](auto writer, auto elt) {
+	auto wr1 = [&acc, fn2](auto writer, auto elt) {
 		std::invoke(writer, acc);
-		acc = std::invoke(bin, acc, elt);
+		acc = std::invoke(fn2, acc, elt);
 	};
-	return loop::copy_each(f, l, out, wr).out;
+	return loop::copy_each(f, l, out, wr1).out;
 }
 
-template <typename InIt, typename OutIt, typename Bin>
-constexpr OutIt partial_sum(InIt f, InIt l, OutIt out, Bin bin) {
+template <typename InIt, typename OutIt, typename Fn2>
+constexpr OutIt partial_sum(InIt f, InIt l, OutIt out, Fn2 fn2) {
 	if (f == l) return out;
 	auto init = *f;
 	fn::writer(out)(init);
 	++f;
-	return loop::inclusive_scan(f, l, out, init, bin);
+	return loop::inclusive_scan(f, l, out, init, fn2);
 }
 
-template <typename InIt, typename OutIt, typename T, typename Bin, typename Fn>
+template <typename InIt, typename OutIt, typename T, typename Fn2, typename Fn1>
 constexpr OutIt transform_inclusive_scan(InIt f, InIt l, OutIt out, T init,
-					 Bin bin, Fn fn) {
-	return loop::inclusive_scan(f, l, out, init, fn::before(bin, fn));
+					 Fn2 fn2, Fn1 fn1) {
+	return loop::inclusive_scan(f, l, out, init, fn::before(fn2, fn1));
 }
 
-template <typename InIt, typename OutIt, typename T, typename Bin, typename Fn>
+template <typename InIt, typename OutIt, typename T, typename Fn2, typename Fn1>
 constexpr OutIt transform_exclusive_scan(InIt f, InIt l, OutIt out, T init,
-					 Bin bin, Fn fn) {
-	return loop::exclusive_scan(f, l, out, init, fn::before(bin, fn));
+					 Fn2 fn2, Fn1 fn1) {
+	return loop::exclusive_scan(f, l, out, init, fn::before(fn2, fn1));
 }
 
 } // namespace loop

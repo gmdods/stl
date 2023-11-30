@@ -1,14 +1,11 @@
 #ifndef LOOP_STL_LOOP_HPP
 #define LOOP_STL_LOOP_HPP
 
+#include <functional>
+
 #include "fn.hpp"
 
 namespace loop {
-
-template <typename T>
-constexpr T midpoint(T a, T b) {
-	return a + (b - a) / 2;
-}
 
 template <typename It>
 struct exited {
@@ -27,40 +24,40 @@ struct range {
 	constexpr void operator++() { ++f; }
 };
 
-template <typename It, typename Fn>
-constexpr exited<It> iterator_while(It f, std::nullptr_t, Fn fn) {
+template <typename It, typename Br1>
+constexpr exited<It> iterator_while(It f, std::nullptr_t, Br1 br1) {
 	for (;; ++f) {
-		if (!fn::bit(fn, f)) return {f, false};
+		if (!fn::bit(br1, f)) return {f, false};
 	}
 	return {f, true};
 }
 
-template <typename It, typename Fn>
-constexpr exited<It> iterator_while(It f, It l, Fn fn) {
+template <typename It, typename Br1>
+constexpr exited<It> iterator_while(It f, It l, Br1 br1) {
 	for (; f != l; ++f) {
-		if (!fn::bit(fn, f)) return {f, false};
+		if (!fn::bit(br1, f)) return {f, false};
 	}
 	return {f, true};
 }
 
-template <typename It, typename Fn>
-constexpr It iterator_each(It f, It l, Fn fn) {
-	return iterator_while(f, l, fn::side_effect(fn)).it;
+template <typename It, typename Fn1>
+constexpr It iterator_each(It f, It l, Fn1 fn1) {
+	return loop::iterator_while(f, l, fn::side_effect(fn1)).it;
 }
 
-template <typename It, typename Fn>
-constexpr exited<It> element_while(It f, std::nullptr_t, Fn fn) {
-	return iterator_while(f, nullptr, fn::deref(fn));
+template <typename It, typename Br1>
+constexpr exited<It> element_while(It f, std::nullptr_t, Br1 br1) {
+	return loop::iterator_while(f, nullptr, fn::deref(br1));
 }
 
-template <typename It, typename Fn>
-constexpr exited<It> element_while(It f, It l, Fn fn) {
-	return iterator_while(f, l, fn::deref(fn));
+template <typename It, typename Br1>
+constexpr exited<It> element_while(It f, It l, Br1 br1) {
+	return loop::iterator_while(f, l, fn::deref(br1));
 }
 
-template <typename It, typename Fn>
-constexpr It element_each(It f, It l, Fn fn) {
-	return iterator_each(f, l, fn::deref(fn));
+template <typename It, typename Fn1>
+constexpr It element_each(It f, It l, Fn1 fn1) {
+	return loop::iterator_each(f, l, fn::deref(fn1));
 }
 
 template <typename InIt, typename OutIt>
@@ -69,43 +66,44 @@ struct inout {
 	OutIt out;
 };
 
-template <typename InIt, typename OutIt, typename FnW>
-constexpr inout<InIt, OutIt> copy_each(InIt f, InIt l, OutIt out, FnW fn) {
-	auto in = element_each(f, l, [fn, writer = fn::writer(out)](auto elt) {
-		std::invoke(fn, writer, elt);
-	});
+template <typename InIt, typename OutIt, typename Wr1>
+constexpr inout<InIt, OutIt> copy_each(InIt f, InIt l, OutIt out, Wr1 wr1) {
+	auto fn1 = [wr1, writer = fn::writer(out)](auto elt) {
+		std::invoke(wr1, writer, elt);
+	};
+	auto in = loop::element_each(f, l, fn1);
 	return {in, out};
 }
 
-template <typename It, typename Fn>
-constexpr exited<It> adjacent_while(It f, It l, Fn fn) {
+template <typename It, typename Br2>
+constexpr exited<It> adjacent_while(It f, It l, Br2 br2) {
 	It t = f;
 	if (f != l) {
 		++f;
 		for (; f != l; ++f) {
-			if (!fn::bit(fn, *t, *f)) return {t, false};
+			if (!fn::bit(br2, *t, *f)) return {t, false};
 			t = f;
 		}
 	}
 	return {t, true};
 }
 
-template <typename InIt, typename OutIt, typename FnW>
-constexpr inout<InIt, OutIt> copy_adjacent(InIt f, InIt l, OutIt out, FnW fn) {
-	auto in = adjacent_while(
-	    f, l, [fn, writer = fn::writer(out)](auto lhs, auto rhs) {
-		    std::invoke(fn, writer, lhs, rhs);
-		    return true;
-	    }).it;
+template <typename InIt, typename OutIt, typename Wr2>
+constexpr inout<InIt, OutIt> copy_adjacent(InIt f, InIt l, OutIt out, Wr2 wr2) {
+	auto br2 = [wr2, writer = fn::writer(out)](auto lhs, auto rhs) {
+		std::invoke(wr2, writer, lhs, rhs);
+		return true;
+	};
+	auto in = loop::adjacent_while(f, l, br2).it;
 	return {in, out};
 }
 
-template <typename It, typename Br, typename Fn>
-constexpr exited<range<It>> binary_recurse(It f, It l, Br br, Fn fn) {
+template <typename It, typename If1, typename Br1>
+constexpr exited<range<It>> binary_recurse(It f, It l, If1 if1, Br1 br1) {
 	while (f != l) {
-		const auto mid = loop::midpoint(f, l);
-		if (fn::bit(fn, *mid)) return {{f, l}, false};
-		if (fn::bit(br, *mid))
+		const auto mid = fn::midpoint(f, l);
+		if (fn::bit(br1, *mid)) return {{f, l}, false};
+		if (fn::bit(if1, *mid))
 			f = mid + 1;
 		else
 			l = mid;
@@ -113,10 +111,10 @@ constexpr exited<range<It>> binary_recurse(It f, It l, Br br, Fn fn) {
 	return {{f, l}, true};
 }
 
-template <typename It, typename Br>
-constexpr It binary_find(It f, It l, Br br) {
-	auto [lb, ub] = loop::binary_recurse(f, l, br, fn::constant(false)).it;
-	return loop::midpoint(lb, ub);
+template <typename It, typename If1>
+constexpr It binary_find(It f, It l, If1 if1) {
+	auto [lb, ub] = loop::binary_recurse(f, l, if1, fn::constant(false)).it;
+	return fn::midpoint(lb, ub);
 }
 
 } // namespace loop

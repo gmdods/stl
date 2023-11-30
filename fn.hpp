@@ -7,15 +7,37 @@ namespace loop {
 
 namespace fn {
 
-template <typename Fn>
-constexpr auto deref(Fn fn) {
-	return [fn](auto it) { return std::invoke(fn, *it); };
+/* -----------------------
+ * Function naming
+ *
+ * - Fn1 : Unary function
+ * - Fn2 : Binary function
+ *
+ * - If1 : Unary predicate
+ * - If2 : Binary predicate
+ *
+ * - Br1 : Unary break condition
+ * - Br2 : Binary break condition
+ *
+ * - Wr1 : Unary writer
+ * - Wr2 : Binary writer
+ * ----------------------
+ */
+
+template <typename T>
+constexpr T midpoint(T a, T b) {
+	return a + (b - a) / 2;
+}
+
+template <typename Fn1>
+constexpr auto deref(Fn1 fn1) {
+	return [fn1](auto it) { return std::invoke(fn1, *it); };
 };
 
-template <typename Fn>
-constexpr auto side_effect(Fn fn) {
-	return [fn](auto elt) {
-		std::invoke(fn, elt);
+template <typename Fn1>
+constexpr auto side_effect(Fn1 fn1) {
+	return [fn1](auto elt) {
+		std::invoke(fn1, elt);
 		return true;
 	};
 };
@@ -28,10 +50,10 @@ constexpr auto writer(OutIt & out) {
 	};
 };
 
-template <typename Bin, typename Fn>
-constexpr auto before(Bin bin, Fn fn) {
-	return [bin, fn](auto lhs, auto rhs) {
-		return std::invoke(bin, lhs, std::invoke(fn, rhs));
+template <typename Fn2, typename Fn1>
+constexpr auto before(Fn2 fn2, Fn1 fn1) {
+	return [fn2, fn1](auto lhs, auto rhs) {
+		return std::invoke(fn2, lhs, std::invoke(fn1, rhs));
 	};
 }
 
@@ -46,34 +68,34 @@ struct constant {
 	}
 };
 
-template <typename Fn, typename... Ts>
-constexpr bool bit(Fn f, Ts... elt) {
-	return static_cast<bool>(std::invoke(f, elt...));
+template <typename If, typename... Ts>
+constexpr bool bit(If if_, Ts... elt) {
+	return static_cast<bool>(std::invoke(if_, elt...));
 }
 
-template <typename Fn>
+template <typename If1>
 struct ifnot {
-	Fn f;
-	ifnot(Fn f) : f(f) {}
+	If1 if1;
+	ifnot(If1 if1) : if1(if1) {}
 
 	template <typename T>
 	constexpr bool operator()(T elt) const {
-		return !bit(f, elt);
+		return !bit(if1, elt);
 	}
 };
 
-template <typename Br, typename Fn>
+template <typename If1, typename Fn1>
 struct guard {
-	Br br;
-	Fn fn;
-	guard(Br br, Fn fn) : br(br), fn(fn) {}
+	If1 if1;
+	Fn1 fn1;
+	guard(If1 if1, Fn1 fn1) : if1(if1), fn1(fn1) {}
 
 	template <typename T>
 	constexpr bool operator()(T elt) const {
-		if (fn::bit(br, elt))
+		if (fn::bit(if1, elt))
 			return false;
 		else {
-			std::invoke(fn, elt);
+			std::invoke(fn1, elt);
 			return true;
 		}
 	}
