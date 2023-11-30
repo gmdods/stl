@@ -61,6 +61,12 @@ int main() {
 	assert(same(a.cbegin(), three_a, o));
 	o.clear();
 
+	auto it = std::next(three_a);
+	loop::copy(a.cbegin(), it, out);
+	loop::rotate_copy(it, std::prev(a.cend()), a.cend(), out);
+	assert(loop::is_sorted(o.cbegin(), o.cend()));
+	o.clear();
+
 	loop::copy_n(a.cbegin(), std::distance(a.cbegin(), three_a), out);
 	assert(same(a.cbegin(), three_a, o));
 	o.clear();

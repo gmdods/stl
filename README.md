@@ -50,7 +50,7 @@ An implementation of C++ STL
 	- [ ] `reverse`
 	- [ ] `reverse_copy`
 	- [ ] `rotate`
-	- [ ] `rotate_copy`
+	- [x] `rotate_copy`
 	- [ ] `shift_left` `shift_right`
 	- [ ] `random_shuffle` `shuffle`
 	- [ ] `sample`

@@ -73,14 +73,14 @@ constexpr bool bit(If if_, Ts... elt) {
 	return static_cast<bool>(std::invoke(if_, elt...));
 }
 
-template <typename If1>
+template <typename If>
 struct ifnot {
-	If1 if1;
-	ifnot(If1 if1) : if1(if1) {}
+	If if_;
+	ifnot(If if_) : if_(if_) {}
 
-	template <typename T>
-	constexpr bool operator()(T elt) const {
-		return !bit(if1, elt);
+	template <typename... Ts>
+	constexpr bool operator()(Ts... elt) const {
+		return !bit(if_, elt...);
 	}
 };
 

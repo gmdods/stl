@@ -111,6 +111,12 @@ constexpr OutIt remove_copy(InIt f, InIt l, OutIt out, T val) {
 }
 
 template <typename InIt, typename OutIt>
+constexpr OutIt rotate_copy(InIt f, InIt m, InIt l, OutIt out) {
+	out = loop::copy(m, l, out);
+	return loop::copy(f, m, out);
+}
+
+template <typename InIt, typename OutIt>
 constexpr OutIt unique_copy(InIt f, InIt l, OutIt out) {
 	if (f == l) return out;
 	fn::writer(out)(*f);
@@ -217,14 +223,14 @@ constexpr It partition_point(It f, It l, If1 if1) {
 
 template <typename It>
 constexpr It is_sorted_until(It f, It l) {
-	auto it = loop::adjacent_while(f, l, std::less{}).it;
+	auto it = loop::adjacent_while(f, l, fn::ifnot(std::greater{})).it;
 	++it;
 	return it;
 }
 
 template <typename It>
 constexpr bool is_sorted(It f, It l) {
-	return loop::adjacent_while(f, l, std::less{}).ended();
+	return loop::adjacent_while(f, l, fn::ifnot(std::greater{})).ended();
 }
 
 // Binary Search
