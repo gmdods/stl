@@ -116,13 +116,14 @@ constexpr OutIt copy_if(InIt f, InIt l, OutIt out, If1 if1) {
 
 template <typename InIt, typename OutIt>
 constexpr OutIt copy(InIt f, InIt l, OutIt out) {
-	return loop::copy_if(f, l, out, fn::constant(true));
+	// return loop::copy_if(f, l, out, fn::constant(true));
+	loop::for_each(f, l, fn::writer(out));
+	return out;
 }
 
 template <typename InIt, typename OutIt>
 constexpr inout<InIt, OutIt> copy_n(InIt f, size_t n, OutIt out) {
-	auto g = fn::guard([&n](auto) { return (n-- == 0); }, fn::writer(out));
-	auto in = loop::element_while(f, nullptr, g).it;
+	auto in = loop::for_each_n(f, n, fn::writer(out));
 	return {in, out};
 }
 
