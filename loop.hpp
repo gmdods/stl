@@ -35,20 +35,20 @@ struct exited {
 	constexpr bool ended() const { return tag == tag::exhaust; }
 };
 
-template <typename It, typename Br1>
-constexpr exited<It> iterator_while(It f, std::nullptr_t, Br1 br1) {
-	auto ret = loop::loop([&f, br1]() -> std::optional<loop::tag> {
-		if (!fn::bit(br1, f)) return tag::condition;
-		++f;
-		return std::nullopt;
-	});
-	return {f, ret};
+template <typename It>
+constexpr bool done(It, std::nullptr_t) {
+	return false;
 }
 
-template <typename It, typename Br1>
-constexpr exited<It> iterator_while(It f, It l, Br1 br1) {
+template <typename It>
+constexpr bool done(It f, It l) {
+	return f == l;
+}
+
+template <typename It, typename St, typename Br1>
+constexpr exited<It> iterator_while(It f, St l, Br1 br1) {
 	auto ret = loop::loop([&f, l, br1]() -> std::optional<loop::tag> {
-		if (f == l) return tag::exhaust;
+		if (loop::done(f, l)) return tag::exhaust;
 		if (!fn::bit(br1, f)) return tag::condition;
 		++f;
 		return std::nullopt;
@@ -61,13 +61,8 @@ constexpr It iterator_each(It f, It l, Fn1 fn1) {
 	return loop::iterator_while(f, l, fn::side_effect(fn1)).it;
 }
 
-template <typename It, typename Br1>
-constexpr exited<It> element_while(It f, std::nullptr_t, Br1 br1) {
-	return loop::iterator_while(f, nullptr, fn::deref(br1));
-}
-
-template <typename It, typename Br1>
-constexpr exited<It> element_while(It f, It l, Br1 br1) {
+template <typename It, typename St, typename Br1>
+constexpr exited<It> element_while(It f, St l, Br1 br1) {
 	return loop::iterator_while(f, l, fn::deref(br1));
 }
 
@@ -91,13 +86,13 @@ constexpr inout<InIt, OutIt> copy_each(InIt f, InIt l, OutIt out, Wr1 wr1) {
 	return {in, out};
 }
 
-template <typename It, typename Br2>
-constexpr exited<It> adjacent_while(It f, It l, Br2 br2) {
-	if (f == l) return {f, tag::exhaust};
+template <typename It, typename St, typename Br2>
+constexpr exited<It> adjacent_while(It f, St l, Br2 br2) {
+	if (loop::done(f, l)) return {f, tag::exhaust};
 	It t = f;
 	++f;
 	auto ret = loop::loop([&f, &t, l, br2]() -> std::optional<loop::tag> {
-		if (f == l) return tag::exhaust;
+		if (loop::done(f, l)) return tag::exhaust;
 		if (!fn::bit(br2, *t, *f)) return tag::condition;
 		t = f;
 		++f;
@@ -111,8 +106,8 @@ constexpr exited<std::pair<ItL, ItR>> parallel_while(ItL f, ItL l, ItR s, ItR t,
 						     Br2 br2) {
 	auto ret =
 	    loop::loop([&f, l, &s, t, br2]() -> std::optional<loop::tag> {
-		    if (f == l) return tag::exhaust;
-		    if (s == t) return tag::exhaust;
+		    if (loop::done(f, l)) return tag::exhaust;
+		    if (loop::done(s, t)) return tag::exhaust;
 		    if (!fn::bit(br2, *f, *s)) return tag::condition;
 		    (void) ++f, (void) ++s;
 		    return std::nullopt;
