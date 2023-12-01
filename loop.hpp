@@ -78,13 +78,10 @@ struct exited {
 
 template <typename Rng, typename Br1>
 constexpr exited<Rng> range_while(Rng r, Br1 br1) {
-	auto ret = loop::loop([&r, br1]() -> std::optional<loop::tag> {
-		if (!bool(r)) return tag::exhaust;
-		if (!fn::bit(br1, r)) return tag::condition;
-		++r;
-		return std::nullopt;
-	});
-	return {r, ret};
+	for (; bool(r); ++r) {
+		if (!fn::bit(br1, r)) return {r, tag::condition};
+	}
+	return {r,tag::exhaust};
 }
 
 template <typename It, typename St, typename Br1>
