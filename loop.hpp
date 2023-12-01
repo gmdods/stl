@@ -2,19 +2,12 @@
 #define LOOP_STL_LOOP_HPP
 
 #include <functional>
+#include <optional>
+#include <stdint.h>
 
 #include "fn.hpp"
 
 namespace loop {
-
-template <typename It>
-struct exited {
-	It it;
-	bool ended_;
-
-	constexpr bool ended() const { return ended_; }
-	constexpr bool found() const { return !ended_; }
-};
 
 template <typename It>
 struct range {
@@ -24,20 +17,43 @@ struct range {
 	constexpr void operator++() { ++f; }
 };
 
+template <typename Br1>
+constexpr auto loop(Br1 br1) {
+	for (;;) {
+		if (auto r = fn::ret(br1)) return r.value();
+	}
+}
+
+enum tag : uint8_t { condition = 0, exhaust = 1 };
+
+template <typename It>
+struct exited {
+	It it;
+	loop::tag tag;
+
+	constexpr bool found() const { return tag == tag::condition; }
+	constexpr bool ended() const { return tag == tag::exhaust; }
+};
+
 template <typename It, typename Br1>
 constexpr exited<It> iterator_while(It f, std::nullptr_t, Br1 br1) {
-	for (;; ++f) {
-		if (!fn::bit(br1, f)) return {f, false};
-	}
-	return {f, true};
+	auto ret = loop::loop([&f, br1]() -> std::optional<loop::tag> {
+		if (!fn::bit(br1, f)) return tag::condition;
+		++f;
+		return std::nullopt;
+	});
+	return {f, ret};
 }
 
 template <typename It, typename Br1>
 constexpr exited<It> iterator_while(It f, It l, Br1 br1) {
-	for (; f != l; ++f) {
-		if (!fn::bit(br1, f)) return {f, false};
-	}
-	return {f, true};
+	auto ret = loop::loop([&f, l, br1]() -> std::optional<loop::tag> {
+		if (f == l) return tag::exhaust;
+		if (!fn::bit(br1, f)) return tag::condition;
+		++f;
+		return std::nullopt;
+	});
+	return {f, ret};
 }
 
 template <typename It, typename Fn1>
@@ -77,24 +93,31 @@ constexpr inout<InIt, OutIt> copy_each(InIt f, InIt l, OutIt out, Wr1 wr1) {
 
 template <typename It, typename Br2>
 constexpr exited<It> adjacent_while(It f, It l, Br2 br2) {
+	if (f == l) return {f, tag::exhaust};
 	It t = f;
-	if (f != l) {
+	++f;
+	auto ret = loop::loop([&f, &t, l, br2]() -> std::optional<loop::tag> {
+		if (f == l) return tag::exhaust;
+		if (!fn::bit(br2, *t, *f)) return tag::condition;
+		t = f;
 		++f;
-		for (; f != l; ++f) {
-			if (!fn::bit(br2, *t, *f)) return {t, false};
-			t = f;
-		}
-	}
-	return {t, true};
+		return std::nullopt;
+	});
+	return {t, ret};
 }
 
 template <typename ItL, typename ItR, typename Br2>
 constexpr exited<std::pair<ItL, ItR>> parallel_while(ItL f, ItL l, ItR s, ItR t,
 						     Br2 br2) {
-	for (; (f != l) && (s != t); (void) ++f, (void) ++s) {
-		if (!fn::bit(br2, *f, *s)) return {{f, s}, false};
-	}
-	return {{f, s}, true};
+	auto ret =
+	    loop::loop([&f, l, &s, t, br2]() -> std::optional<loop::tag> {
+		    if (f == l) return tag::exhaust;
+		    if (s == t) return tag::exhaust;
+		    if (!fn::bit(br2, *f, *s)) return tag::condition;
+		    (void) ++f, (void) ++s;
+		    return std::nullopt;
+	    });
+	return {{f, s}, ret};
 }
 
 template <typename InIt, typename OutIt, typename Wr2>
@@ -111,13 +134,13 @@ template <typename It, typename If1, typename Br1>
 constexpr exited<range<It>> binary_recurse(It f, It l, If1 if1, Br1 br1) {
 	while (f != l) {
 		const auto mid = fn::midpoint(f, l);
-		if (fn::bit(br1, *mid)) return {{f, l}, false};
+		if (fn::bit(br1, *mid)) return {{f, l}, tag::condition};
 		if (fn::bit(if1, *mid))
 			f = mid + 1;
 		else
 			l = mid;
 	}
-	return {{f, l}, true};
+	return {{f, l}, tag::exhaust};
 }
 
 template <typename It, typename If1>

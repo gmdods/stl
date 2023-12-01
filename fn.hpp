@@ -2,6 +2,7 @@
 #define LOOP_STL_FN_HPP
 
 #include <functional>
+#include <optional>
 
 namespace loop {
 
@@ -67,6 +68,14 @@ struct constant {
 		return val;
 	}
 };
+
+template <typename Fn, typename... Ts>
+using ret_value = typename std::invoke_result_t<Fn, Ts...>::value_type;
+
+template <typename Fn, typename... Ts>
+constexpr std::optional<fn::ret_value<Fn, Ts...>> ret(Fn fn, Ts... elt) {
+	return std::invoke(fn, elt...);
+}
 
 template <typename If, typename... Ts>
 constexpr bool bit(If if_, Ts... elt) {
