@@ -43,6 +43,14 @@ constexpr auto side_effect(Fn1 fn1) {
 	};
 };
 
+template <typename Fn2>
+constexpr auto unpair(Fn2 fn2) {
+	return [fn2](auto pair) {
+		auto [lhs, rhs] = pair;
+		return std::invoke(fn2, lhs, rhs);
+	};
+};
+
 template <typename OutIt>
 constexpr auto writer(OutIt & out) {
 	return [&out](auto elt) {

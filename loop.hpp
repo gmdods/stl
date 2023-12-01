@@ -10,11 +10,52 @@
 namespace loop {
 
 template <typename It>
+constexpr bool done(It, std::nullptr_t) {
+	return false;
+}
+
+template <typename It>
+constexpr bool done(It f, It l) {
+	return f == l;
+}
+
+template <typename It, typename St = It>
 struct range {
-	It f, l;
-	constexpr operator bool() { return f != l; }
+	It f;
+	St l;
+	constexpr explicit operator bool() { return !loop::done(f, l); }
 	constexpr auto operator*() { return *f; }
 	constexpr void operator++() { ++f; }
+
+	constexpr bool operator==(range<It, St> o) {
+		return (f == o.f) && (l == o.l);
+	}
+};
+
+template <typename It, typename St>
+struct adjacent_range {
+	It t;
+	It f;
+	St l;
+	constexpr explicit operator bool() { return !loop::done(f, l); }
+	constexpr auto operator*() { return std::pair{*t, *f}; }
+	constexpr void operator++() {
+		t = f;
+		++f;
+	}
+};
+
+template <typename It0, typename St0, typename It1, typename St1>
+struct parallel_range {
+	It0 f;
+	St0 l;
+	It1 s;
+	St1 t;
+	constexpr explicit operator bool() {
+		return !loop::done(f, l) && !loop::done(s, t);
+	}
+	constexpr auto operator*() { return std::pair{*f, *s}; }
+	constexpr void operator++() { (void) ++f, (void) ++s; }
 };
 
 template <typename Br1>
@@ -35,25 +76,22 @@ struct exited {
 	constexpr bool ended() const { return tag == tag::exhaust; }
 };
 
-template <typename It>
-constexpr bool done(It, std::nullptr_t) {
-	return false;
-}
-
-template <typename It>
-constexpr bool done(It f, It l) {
-	return f == l;
+template <typename Rng, typename Br1>
+constexpr exited<Rng> range_while(Rng r, Br1 br1) {
+	auto ret = loop::loop([&r, br1]() -> std::optional<loop::tag> {
+		if (!bool(r)) return tag::exhaust;
+		if (!fn::bit(br1, r)) return tag::condition;
+		++r;
+		return std::nullopt;
+	});
+	return {r, ret};
 }
 
 template <typename It, typename St, typename Br1>
 constexpr exited<It> iterator_while(It f, St l, Br1 br1) {
-	auto ret = loop::loop([&f, l, br1]() -> std::optional<loop::tag> {
-		if (loop::done(f, l)) return tag::exhaust;
-		if (!fn::bit(br1, f)) return tag::condition;
-		++f;
-		return std::nullopt;
-	});
-	return {f, ret};
+	auto [r, ret] = loop::range_while(
+	    loop::range{f, l}, [br1](auto r) { return fn::bit(br1, r.f); });
+	return {r.f, ret};
 }
 
 template <typename It, typename Fn1>
@@ -91,28 +129,18 @@ constexpr exited<It> adjacent_while(It f, St l, Br2 br2) {
 	if (loop::done(f, l)) return {f, tag::exhaust};
 	It t = f;
 	++f;
-	auto ret = loop::loop([&f, &t, l, br2]() -> std::optional<loop::tag> {
-		if (loop::done(f, l)) return tag::exhaust;
-		if (!fn::bit(br2, *t, *f)) return tag::condition;
-		t = f;
-		++f;
-		return std::nullopt;
-	});
-	return {t, ret};
+
+	auto [r, ret] = loop::range_while(loop::adjacent_range{t, f, l},
+					  fn::deref(fn::unpair(br2)));
+	return {r.t, ret};
 }
 
 template <typename ItL, typename ItR, typename Br2>
 constexpr exited<std::pair<ItL, ItR>> parallel_while(ItL f, ItL l, ItR s, ItR t,
 						     Br2 br2) {
-	auto ret =
-	    loop::loop([&f, l, &s, t, br2]() -> std::optional<loop::tag> {
-		    if (loop::done(f, l)) return tag::exhaust;
-		    if (loop::done(s, t)) return tag::exhaust;
-		    if (!fn::bit(br2, *f, *s)) return tag::condition;
-		    (void) ++f, (void) ++s;
-		    return std::nullopt;
-	    });
-	return {{f, s}, ret};
+	auto [r, ret] = loop::range_while(loop::parallel_range{f, l, s, t},
+					  fn::deref(fn::unpair(br2)));
+	return {{r.f, r.s}, ret};
 }
 
 template <typename InIt, typename OutIt, typename Wr2>
