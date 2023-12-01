@@ -91,17 +91,13 @@ constexpr ItL find_first_of(ItL f, ItL l, ItR s, ItR t) {
 
 template <typename ItL, typename ItR>
 constexpr ItL search(ItL f, ItL l, ItR s, ItR t) {
-	auto ret = l;
-	auto br1 = [&ret, s, t, l](auto it) {
-		auto [l_, t_] = loop::mismatch(it, l, s, t);
-		if (t_ == t) {
-			ret = it;
-			return false;
-		}
-		return (l_ != l);
-	};
-	loop::iterator_while(f, nullptr, br1);
-	return ret;
+	return loop::loop([&f, l, s, t]() -> std::optional<ItL> {
+		auto [l_, t_] = loop::mismatch(f, l, s, t);
+		if (loop::done(t_, t)) return f;
+		if (loop::done(l_, l)) return l;
+		++f;
+		return std::nullopt;
+	});
 }
 
 // Modifying
