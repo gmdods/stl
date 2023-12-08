@@ -104,3 +104,7 @@ An implementation of C++ STL
 	- [ ] `next_permutation`
 	- [ ] `prev_permutation`
 
+## Testing
+
+Testing uses [c-unittest](https://github.com/gmdods/c-unittest).
+
