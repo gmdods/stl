@@ -24,6 +24,7 @@ struct range {
 	It f;
 	St l;
 	constexpr explicit operator bool() { return !loop::done(f, l); }
+	constexpr auto it() { return f; }
 	constexpr auto operator*() { return *f; }
 	constexpr void operator++() { ++f; }
 
@@ -38,6 +39,7 @@ struct adjacent_range {
 	It f;
 	St l;
 	constexpr explicit operator bool() { return !loop::done(f, l); }
+	constexpr auto it() { return t; }
 	constexpr auto operator*() { return std::pair{*t, *f}; }
 	constexpr void operator++() {
 		t = f;
@@ -54,6 +56,7 @@ struct parallel_range {
 	constexpr explicit operator bool() {
 		return !loop::done(f, l) && !loop::done(s, t);
 	}
+	constexpr auto it() { return std::pair{f, s}; }
 	constexpr auto operator*() { return std::pair{*f, *s}; }
 	constexpr void operator++() { (void) ++f, (void) ++s; }
 };
@@ -81,14 +84,14 @@ constexpr exited<Rng> range_while(Rng r, Br1 br1) {
 	for (; bool(r); ++r) {
 		if (!fn::bit(br1, r)) return {r, tag::condition};
 	}
-	return {r,tag::exhaust};
+	return {r, tag::exhaust};
 }
 
 template <typename It, typename St, typename Br1>
 constexpr exited<It> iterator_while(It f, St l, Br1 br1) {
 	auto [r, ret] = loop::range_while(
 	    loop::range{f, l}, [br1](auto r) { return fn::bit(br1, r.f); });
-	return {r.f, ret};
+	return {r.it(), ret};
 }
 
 template <typename It, typename Fn1>
@@ -129,7 +132,7 @@ constexpr exited<It> adjacent_while(It f, St l, Br2 br2) {
 
 	auto [r, ret] = loop::range_while(loop::adjacent_range{t, f, l},
 					  fn::deref(fn::unpair(br2)));
-	return {r.t, ret};
+	return {r.it(), ret};
 }
 
 template <typename ItL, typename ItR, typename Br2>
@@ -137,7 +140,7 @@ constexpr exited<std::pair<ItL, ItR>> parallel_while(ItL f, ItL l, ItR s, ItR t,
 						     Br2 br2) {
 	auto [r, ret] = loop::range_while(loop::parallel_range{f, l, s, t},
 					  fn::deref(fn::unpair(br2)));
-	return {{r.f, r.s}, ret};
+	return {r.it(), ret};
 }
 
 template <typename InIt, typename OutIt, typename Wr2>
