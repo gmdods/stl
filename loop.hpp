@@ -39,7 +39,7 @@ struct adjacent_range {
 	It f;
 	St l;
 	constexpr explicit operator bool() { return !loop::done(f, l); }
-	constexpr auto it() { return t; }
+	constexpr auto it() { return std::pair{t, f}; }
 	constexpr auto operator*() { return std::pair{*t, *f}; }
 	constexpr void operator++() {
 		t = f;
@@ -61,14 +61,7 @@ struct parallel_range {
 	constexpr void operator++() { (void) ++f, (void) ++s; }
 };
 
-template <typename Br1>
-constexpr auto loop(Br1 br1) {
-	for (;;) {
-		if (auto r = fn::ret(br1)) return r.value();
-	}
-}
-
-enum tag : uint8_t { condition = 0, exhaust = 1 };
+enum tag : bool { condition = 0, exhaust = 1 };
 
 template <typename It>
 struct exited {
@@ -116,17 +109,17 @@ struct inout {
 };
 
 template <typename InIt, typename OutIt, typename Wr1>
-constexpr inout<InIt, OutIt> copy_each(InIt f, InIt l, OutIt out, Wr1 wr1) {
+constexpr OutIt copy_each(InIt f, InIt l, OutIt out, Wr1 wr1) {
 	auto fn1 = [wr1, writer = fn::writer(out)](auto elt) {
 		std::invoke(wr1, writer, elt);
 	};
-	auto in = loop::element_each(f, l, fn1);
-	return {in, out};
+	loop::element_each(f, l, fn1);
+	return out;
 }
 
 template <typename It, typename St, typename Br2>
-constexpr exited<It> adjacent_while(It f, St l, Br2 br2) {
-	if (loop::done(f, l)) return {f, tag::exhaust};
+constexpr exited<std::pair<It, It>> adjacent_while(It f, St l, Br2 br2) {
+	if (loop::done(f, l)) return {{f, l}, tag::exhaust};
 	It t = f;
 	++f;
 
@@ -144,13 +137,13 @@ constexpr exited<std::pair<ItL, ItR>> parallel_while(ItL f, ItL l, ItR s, ItR t,
 }
 
 template <typename InIt, typename OutIt, typename Wr2>
-constexpr inout<InIt, OutIt> copy_adjacent(InIt f, InIt l, OutIt out, Wr2 wr2) {
+constexpr OutIt copy_adjacent(InIt f, InIt l, OutIt out, Wr2 wr2) {
 	auto br2 = [wr2, writer = fn::writer(out)](auto lhs, auto rhs) {
 		std::invoke(wr2, writer, lhs, rhs);
 		return true;
 	};
-	auto in = loop::adjacent_while(f, l, br2).it;
-	return {in, out};
+	loop::adjacent_while(f, l, br2).it;
+	return out;
 }
 
 template <typename It, typename If1, typename Br1>
