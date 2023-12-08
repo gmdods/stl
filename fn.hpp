@@ -2,6 +2,7 @@
 #define LOOP_STL_FN_HPP
 
 #include <functional>
+#include <optional>
 
 namespace loop {
 
@@ -42,6 +43,14 @@ constexpr auto side_effect(Fn1 fn1) {
 	};
 };
 
+template <typename Fn2>
+constexpr auto unpair(Fn2 fn2) {
+	return [fn2](auto pair) {
+		auto [lhs, rhs] = pair;
+		return std::invoke(fn2, lhs, rhs);
+	};
+};
+
 template <typename OutIt>
 constexpr auto writer(OutIt & out) {
 	return [&out](auto elt) {
@@ -67,6 +76,14 @@ struct constant {
 		return val;
 	}
 };
+
+template <typename Fn, typename... Ts>
+using ret_value = typename std::invoke_result_t<Fn, Ts...>::value_type;
+
+template <typename Fn, typename... Ts>
+constexpr std::optional<fn::ret_value<Fn, Ts...>> ret(Fn fn, Ts... elt) {
+	return std::invoke(fn, elt...);
+}
 
 template <typename If, typename... Ts>
 constexpr bool bit(If if_, Ts... elt) {

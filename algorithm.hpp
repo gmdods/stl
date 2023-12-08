@@ -80,7 +80,7 @@ constexpr std::pair<ItL, ItR> mismatch(ItL f, ItL l, ItR s, ItR t) {
 
 template <typename It>
 constexpr It adjacent_find(It f, It l) {
-	return loop::adjacent_while(f, l, std::not_equal_to{}).it;
+	return loop::adjacent_while(f, l, std::not_equal_to{}).it.first;
 }
 
 template <typename ItL, typename ItR>
@@ -111,18 +111,19 @@ constexpr OutIt copy_if(InIt f, InIt l, OutIt out, If1 if1) {
 	auto wr1 = [if1](auto writer, auto elt) {
 		if (fn::bit(if1, elt)) std::invoke(writer, elt);
 	};
-	return loop::copy_each(f, l, out, wr1).out;
+	return loop::copy_each(f, l, out, wr1);
 }
 
 template <typename InIt, typename OutIt>
 constexpr OutIt copy(InIt f, InIt l, OutIt out) {
-	return loop::copy_if(f, l, out, fn::constant(true));
+	// return loop::copy_if(f, l, out, fn::constant(true));
+	loop::for_each(f, l, fn::writer(out));
+	return out;
 }
 
 template <typename InIt, typename OutIt>
 constexpr inout<InIt, OutIt> copy_n(InIt f, size_t n, OutIt out) {
-	auto g = fn::guard([&n](auto) { return (n-- == 0); }, fn::writer(out));
-	auto in = loop::element_while(f, nullptr, g).it;
+	auto in = loop::for_each_n(f, n, fn::writer(out));
 	return {in, out};
 }
 
@@ -149,7 +150,7 @@ constexpr OutIt unique_copy(InIt f, InIt l, OutIt out) {
 	auto wr = [](auto writer, auto lhs, auto rhs) {
 		if (rhs != lhs) std::invoke(writer, rhs);
 	};
-	return loop::copy_adjacent(f, l, out, wr).out;
+	return loop::copy_adjacent(f, l, out, wr);
 }
 
 template <typename InIt, typename OutIt, typename Fn1>
@@ -157,7 +158,7 @@ constexpr OutIt transform(InIt f, InIt l, OutIt out, Fn1 fn1) {
 	auto wr1 = [fn1](auto writer, auto elt) {
 		std::invoke(writer, std::invoke(fn1, elt));
 	};
-	return loop::copy_each(f, l, out, wr1).out;
+	return loop::copy_each(f, l, out, wr1);
 }
 
 template <typename InIt, typename OutIt, typename If1, typename T>
@@ -255,7 +256,7 @@ constexpr std::pair<OutItT, OutItF> partition_copy(InIt f, InIt l, OutItT out_t,
 		else
 			std::invoke(writer_f, elt);
 	};
-	return {loop::copy_each(f, l, out_t, wr1).out, out_f};
+	return {loop::copy_each(f, l, out_t, wr1), out_f};
 }
 
 template <typename It, typename If1>
@@ -267,9 +268,7 @@ constexpr It partition_point(It f, It l, If1 if1) {
 
 template <typename It>
 constexpr It is_sorted_until(It f, It l) {
-	auto it = loop::adjacent_while(f, l, fn::ifnot(std::greater{})).it;
-	++it;
-	return it;
+	return loop::adjacent_while(f, l, fn::ifnot(std::greater{})).it.second;
 }
 
 template <typename It>

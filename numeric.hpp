@@ -49,7 +49,7 @@ constexpr OutIt adjancent_difference(InIt f, InIt l, OutIt out, Fn2 fn2) {
 	auto wr2 = [fn2](auto writer, auto lhs, auto rhs) {
 		std::invoke(writer, std::invoke(fn2, rhs, lhs));
 	};
-	return loop::copy_adjacent(f, l, out, wr2).out;
+	return loop::copy_adjacent(f, l, out, wr2);
 }
 
 template <typename InIt, typename OutIt, typename T, typename Fn2>
@@ -59,7 +59,7 @@ constexpr OutIt inclusive_scan(InIt f, InIt l, OutIt out, T val, Fn2 fn2) {
 		acc = std::invoke(fn2, acc, elt);
 		std::invoke(writer, acc);
 	};
-	return loop::copy_each(f, l, out, wr1).out;
+	return loop::copy_each(f, l, out, wr1);
 }
 
 template <typename InIt, typename OutIt, typename T, typename Fn2>
@@ -69,7 +69,7 @@ constexpr OutIt exclusive_scan(InIt f, InIt l, OutIt out, T val, Fn2 fn2) {
 		std::invoke(writer, acc);
 		acc = std::invoke(fn2, acc, elt);
 	};
-	return loop::copy_each(f, l, out, wr1).out;
+	return loop::copy_each(f, l, out, wr1);
 }
 
 template <typename InIt, typename OutIt, typename Fn2>
