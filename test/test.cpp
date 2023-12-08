@@ -4,8 +4,8 @@
 #include <iostream>
 #include <vector>
 
-#include "algorithm.hpp"
-#include "numeric.hpp"
+#include "../include/algorithm.hpp"
+#include "../include/numeric.hpp"
 
 int main() {
 
